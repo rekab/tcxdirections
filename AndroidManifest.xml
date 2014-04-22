@@ -8,19 +8,39 @@
         android:minSdkVersion="19"
         android:targetSdkVersion="19" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.glass.permission.DEVELOPMENT"/>
 
+    
     <application
         android:allowBackup="true"
         android:icon="@drawable/bike_icon_45x40"
         android:label="@string/app_name" >
-                
-	    <activity
-	        android:name="com.example.stfu.MainActivity"
-	        android:label="@string/app_name"
-	        android:theme="@style/MenuTheme"
-	        android:enabled="true" >
-	    </activity>
-	    
+
+        <activity
+            android:name="com.github.barcodeeye.scan.CaptureActivity"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="landscape"
+            android:stateNotNeeded="true"
+            android:theme="@style/CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter>
+                <action android:name="com.github.barcodeeye.scan.CaptureActivity.AUTO_LAUNCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name="com.example.stfu.MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/MenuTheme"
+            android:enabled="true" >
+        </activity>
+
         <service
             android:name="com.example.stfu.StfuLiveCardService"
             android:icon="@drawable/bike_icon_45x40"
