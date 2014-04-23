@@ -53,7 +53,8 @@ public final class R {
         public static final int ic_stop=0x7f020002;
     }
     public static final class id {
-        public static final int action_scan=0x7f090019;
+        public static final int action_browse=0x7f090019;
+        public static final int action_scan=0x7f09001a;
         public static final int app_picker_list_item_icon=0x7f09000a;
         public static final int app_picker_list_item_label=0x7f09000b;
         public static final int bookmark_title=0x7f09000c;
@@ -103,6 +104,7 @@ public final class R {
         public static final int beep=0x7f050000;
     }
     public static final class string {
+        public static final int action_browse=0x7f0a007d;
         public static final int action_help=0x7f0a007b;
         /**  Actions 
          */

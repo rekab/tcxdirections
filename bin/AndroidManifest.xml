@@ -42,6 +42,12 @@
             android:enabled="true" >
         </activity>
 
+        <activity
+            android:name="com.example.stfu.FileBrowserActivity"
+            android:theme="@style/MenuTheme"
+            android:enabled="true" >
+        </activity>
+
         <service
             android:name="com.example.stfu.StfuLiveCardService"
             android:icon="@drawable/bike_icon_45x40"

@@ -3,5 +3,6 @@
 
     <string name="app_name">stfu</string>
     <string name="action_scan">Scan QR code</string>
+    <string name="action_browse">Browse files</string>
 
 </resources>

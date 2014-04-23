@@ -32,16 +32,26 @@ public class MainActivity extends Activity {
     private boolean shouldFinishOnMenuClose;
     private DownloadManager dm;
     private long downloadRequestId;
+	private boolean isAttached = false;
     private static final String TAG = "Menu";
     private static final int SCAN_BARCODE = 0;
-    public static final String SD_SUBDIR_NAME = "gpx";
+    private static final int PICK_FILE = 1;
 
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
+        isAttached = true;
         openOptionsMenu();
     }
-
+    @Override
+    public void onResume() {
+      super.onResume();
+      // BUG: have to hit back twice before the menu can be re-opened.
+      if (isAttached) {
+        openOptionsMenu();
+      }
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -63,13 +73,19 @@ public class MainActivity extends Activity {
             intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
             startActivityForResult(intent, SCAN_BARCODE);
             return true;
+        } else if (id == R.id.action_browse) {
+            // Start a card-based file browser
+        	Intent intent = new Intent(this, FileBrowserActivity.class);
+        	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // wat?
+        	startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i(TAG, "Got activity result: " + resultCode + " " + data);
+        Log.i(TAG, "Got activity requestCode: " + requestCode +
+              " result: " + resultCode + " " + data);
         if (requestCode == SCAN_BARCODE) {
             if (resultCode == RESULT_OK) {
                 String uriString = data.getStringExtra(CaptureActivity.BARCODE_RESULT);
@@ -88,7 +104,14 @@ public class MainActivity extends Activity {
                 Request request = new Request(Uri.parse(uriString));
                 downloadRequestId = dm.enqueue(request);*/
             }
-        }
+            // TODO: display error
+        } /*else if (requestCode == PICK_FILE) {
+            if (resultCode == RESULT_OK) {
+                String filePath = data.getStringExtra(FileBrowserActivity.FILE_RESULT);
+                Log.i(TAG, "will open " + filePath);
+                // TODO: launch intent to the service
+            }
+        }*/
         // We're done here.
         finish();
     }
@@ -164,9 +187,7 @@ public class MainActivity extends Activity {
         }
 
         private String saveFile(String basename, InputStream inputStream) throws IOException {
-            File sdCard = Environment.getExternalStorageDirectory();
-            File dir = new File (sdCard.getAbsolutePath() + "/" + SD_SUBDIR_NAME);
-            dir.mkdirs();
+            File dir = Filesystem.getStorageDirectory();
             if (!dir.isDirectory()) {
                 Log.e(TAG, "Failed to create " + dir.getAbsolutePath());
                 return null;
@@ -187,12 +208,5 @@ public class MainActivity extends Activity {
             return file.getAbsolutePath();
         }
     }
-    /*
-    private class DownloadBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context arg0, Intent arg1) {
-        }
-    }*/
 }
 ;
