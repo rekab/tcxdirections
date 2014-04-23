@@ -2,7 +2,6 @@
 <resources>
 
     <string name="app_name">stfu</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_scan">Scan barcode</string>
+    <string name="action_scan">Scan QR code</string>
 
 </resources>
