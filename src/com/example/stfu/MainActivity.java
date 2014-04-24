@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
         isAttached = true;
+        // TODO: display card selector if a file is already loaded?
         openOptionsMenu();
     }
     @Override
@@ -74,12 +75,23 @@ public class MainActivity extends Activity {
             startActivityForResult(intent, SCAN_BARCODE);
             return true;
         } else if (id == R.id.action_browse) {
+        	shouldFinishOnMenuClose = false;
+        	//shouldFinishOnMenuClose = true;
+        	Log.i(TAG, "starting file browser activity");
             // Start a card-based file browser
         	Intent intent = new Intent(this, FileBrowserActivity.class);
-        	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // wat?
-        	startActivity(intent);
+        	//intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // wat?
+        	startActivityForResult(intent, PICK_FILE);
+        	return true;
         }
+        
+        shouldFinishOnMenuClose = true; // We're not expecting an activity result.
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public void onDestroy() {
+    	Log.i(TAG, "Being destroyed");
+    	super.onDestroy();
     }
 
     @Override
@@ -105,18 +117,27 @@ public class MainActivity extends Activity {
                 downloadRequestId = dm.enqueue(request);*/
             }
             // TODO: display error
-        } /*else if (requestCode == PICK_FILE) {
+        } else if (requestCode == PICK_FILE) {
             if (resultCode == RESULT_OK) {
                 String filePath = data.getStringExtra(FileBrowserActivity.FILE_RESULT);
                 Log.i(TAG, "will open " + filePath);
-                // TODO: launch intent to the service
+                displayGpx(filePath);
             }
-        }*/
+        }
         // We're done here.
         finish();
     }
 
-    @Override
+    private void displayGpx(String filePath) {
+        Log.i(TAG, "Launching intent for " + filePath);
+		Intent intent = new Intent(this, StfuLiveCardService.class);
+		intent.setAction(StfuLiveCardService.DISPLAY_GPX);
+		intent.putExtra(StfuLiveCardService.FILE_PATH, filePath);
+		startService(intent);
+		finish();
+	}
+
+	@Override
     public void onOptionsMenuClosed(Menu menu) {
         super.onOptionsMenuClosed(menu);
 
@@ -142,13 +163,14 @@ public class MainActivity extends Activity {
         //@Override
         //protected void onProgress()
 
-        protected void onPostExecute(String result) {
-            if (result == null) {
-                Log.e(TAG, "Failed");
+        protected void onPostExecute(String filePath) {
+            if (filePath == null) {
+                Log.e(TAG, "Download failed");
                 // TODO: error display
             } else {
-                Log.i(TAG, "Launching intent for " + result);
+                Log.i(TAG, "Downloaded " + filePath);
                 // launch intent for the service to pick up
+                displayGpx(filePath);
             }
         }
 

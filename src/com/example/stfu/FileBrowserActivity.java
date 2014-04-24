@@ -9,6 +9,8 @@ import com.google.android.glass.widget.CardScrollAdapter;
 import com.google.android.glass.widget.CardScrollView;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -21,7 +23,7 @@ public class FileBrowserActivity extends Activity {
     public static final String FILE_RESULT = "picked_file";
 	private static final String TAG = "FileBrowser";
     private CardScrollView mCardScrollView;
-    List<Card> mCards;
+    List<GpxFileCard> mCards;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +35,13 @@ public class FileBrowserActivity extends Activity {
         mCardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-				Log.i(TAG, "clicked: " + mCards.get(pos).getText());
-				// TODO: fire an intent
+				String filename = mCards.get(pos).getFilename();
+				Log.i(TAG, "clicked: " + filename);
+				Intent returnIntent = new Intent();
+				returnIntent.putExtra(FILE_RESULT, filename);
+				setResult(RESULT_OK, returnIntent);
+				Log.i(TAG, "set result, calling finish()");
+				finish();
 			}
         });
         mCardScrollView.activate();
@@ -42,16 +49,32 @@ public class FileBrowserActivity extends Activity {
     }
 
     private void createCards(File storageDirectory) {
-        mCards = new ArrayList<Card>();
+        mCards = new ArrayList<GpxFileCard>();
         for (File file : storageDirectory.listFiles()) {
             if (file.isFile() && file.getName().endsWith(".gpx")) {
-                Card card = new Card(this);
+                GpxFileCard card = new GpxFileCard(this);
                 // TODO: gpx parser should extract the title
                 Log.i(TAG, "creating card for " + file.getName());
-                card.setText(file.getName());
+                card.setFilename(file.getName());
                 mCards.add(card);
             }
         }
+    }
+    
+    private class GpxFileCard extends Card {
+
+		private String filename;
+		
+		public GpxFileCard(Context context) {
+			super(context);
+		}
+    	public void setFilename(String filename) {
+    		this.filename = filename;
+    		setText(filename);
+    	}
+    	public String getFilename() {
+    		return filename;
+    	}
     }
     
     private class GpxFileCardScrollAdapter extends CardScrollAdapter {

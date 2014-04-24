@@ -24,6 +24,8 @@ public class StfuLiveCardService extends Service {
 
 	private static final String TAG = "StfuLiveCardService";
 	public static final long DELAY_MILLIS = 3000;
+	protected static final String FILE_PATH = "file_path";
+	public static final String DISPLAY_GPX = "display_gpx";
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -53,8 +55,7 @@ public class StfuLiveCardService extends Service {
             // Inflate a layout into a remote view
             mLiveCardView = new RemoteViews(getPackageName(),
                 R.layout.live_card_layout);
-            mLiveCardView.setTextViewText(R.id.text, "Leslie is a loser.");
-            mLiveCard.setViews(mLiveCardView);
+            setText("Tap for options");
             
             // Set up the live card's action with a pending intent
             // to show a menu when tapped
@@ -65,11 +66,22 @@ public class StfuLiveCardService extends Service {
                     this, 0, menuIntent, 0));
             
             mLiveCard.publish(PublishMode.REVEAL);
-            mHandler.post(mUpdateLiveCardRunnable);
+            //mHandler.post(mUpdateLiveCardRunnable);
+        } else if (intent.getAction().equals(DISPLAY_GPX)) {
+        	if (intent.hasExtra(FILE_PATH)) {
+        		setText(intent.getStringExtra(FILE_PATH));
+        	} else {
+        		Log.e(TAG, "Got a DISPLAY_GPX action with no file?");
+        	}
         }
         Log.d(TAG, "returning from onStartCommand()");
         return START_STICKY;
     }
+
+	private void setText(String text) {
+		mLiveCardView.setTextViewText(R.id.text, text);
+		mLiveCard.setViews(mLiveCardView);
+	}
     
     /**
      * Runnable that updates live card contents
