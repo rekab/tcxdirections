@@ -55,7 +55,7 @@ public class FileBrowserActivity extends Activity {
                 GpxFileCard card = new GpxFileCard(this);
                 // TODO: gpx parser should extract the title
                 Log.i(TAG, "creating card for " + file.getName());
-                card.setFilename(file.getName());
+                card.setFile(file);
                 mCards.add(card);
             }
         }
@@ -68,9 +68,9 @@ public class FileBrowserActivity extends Activity {
 		public GpxFileCard(Context context) {
 			super(context);
 		}
-    	public void setFilename(String filename) {
-    		this.filename = filename;
-    		setText(filename);
+    	public void setFile(File file) {
+    		this.filename = file.getAbsolutePath();
+    		setText(file.getName());
     	}
     	public String getFilename() {
     		return filename;
