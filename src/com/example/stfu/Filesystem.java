@@ -11,7 +11,7 @@ public final class Filesystem {
 	/** Create the storage directory and return the directory. */
 	public static File getStorageDirectory() {
         File sdCard = Environment.getExternalStorageDirectory();
-        File dir = new File (sdCard.getAbsolutePath() + "/" + SD_SUBDIR_NAME);
+        File dir = new File(sdCard.getAbsolutePath() + "/" + SD_SUBDIR_NAME);
         dir.mkdirs();
         return dir;
 	}

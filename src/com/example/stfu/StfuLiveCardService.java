@@ -1,5 +1,7 @@
 package com.example.stfu;
 
+import java.io.File;
+import java.util.List;
 import java.util.Random;
 
 import com.google.android.glass.timeline.LiveCard;
@@ -69,7 +71,10 @@ public class StfuLiveCardService extends Service {
             //mHandler.post(mUpdateLiveCardRunnable);
         } else if (intent.getAction().equals(DISPLAY_GPX)) {
         	if (intent.hasExtra(FILE_PATH)) {
-        		setText(intent.getStringExtra(FILE_PATH));
+        		File gpxFile = new File(intent.getStringExtra(FILE_PATH));
+        		List<RoutePoint> route = GpxReader.getRoutePoints(gpxFile);
+        		Log.i(TAG, "loaded route " + route);
+        		setText(route.get(0).getDescription());
         	} else {
         		Log.e(TAG, "Got a DISPLAY_GPX action with no file?");
         	}
