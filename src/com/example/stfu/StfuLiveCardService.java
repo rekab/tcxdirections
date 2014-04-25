@@ -18,8 +18,8 @@ import android.util.Log;
 public class StfuLiveCardService extends Service {
 
     private static final String LIVE_CARD_TAG = "something";
-	private LiveCard mLiveCard;
-	private RemoteViews mLiveCardView;
+	private LiveCard liveCard;
+	private RemoteViews liveCardView;
 	private Random mRandom;
     private final Handler mHandler = new Handler();
 	private UpdateLiveCardRunnable mUpdateLiveCardRunnable = new UpdateLiveCardRunnable();
@@ -51,11 +51,11 @@ public class StfuLiveCardService extends Service {
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (mLiveCard == null) {
+        if (liveCard == null) {
         	Log.d(TAG, "starting live card");
-            mLiveCard = new LiveCard(this, LIVE_CARD_TAG);
+            liveCard = new LiveCard(this, LIVE_CARD_TAG);
             // Inflate a layout into a remote view
-            mLiveCardView = new RemoteViews(getPackageName(),
+            liveCardView = new RemoteViews(getPackageName(),
                 R.layout.live_card_layout);
             setText("Tap for options");
             
@@ -64,17 +64,18 @@ public class StfuLiveCardService extends Service {
             Intent menuIntent = new Intent(this, MainActivity.class);
             menuIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                     Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            mLiveCard.setAction(PendingIntent.getActivity(
+            liveCard.setAction(PendingIntent.getActivity(
                     this, 0, menuIntent, 0));
             
-            mLiveCard.publish(PublishMode.REVEAL);
+            liveCard.publish(PublishMode.REVEAL);
             //mHandler.post(mUpdateLiveCardRunnable);
         } else if (intent.getAction().equals(DISPLAY_GPX)) {
         	if (intent.hasExtra(FILE_PATH)) {
         		File gpxFile = new File(intent.getStringExtra(FILE_PATH));
         		List<RoutePoint> route = GpxReader.getRoutePoints(gpxFile);
-        		Log.i(TAG, "loaded route " + route);
-        		setText(route.get(0).getDescription());
+        		//Log.i(TAG, "loaded route " + route);
+        		liveCard.setViews(new RoutePointCard(getPackageName(), route.get(0)).getView());
+        		//setText(route.get(0).getDescription());
         	} else {
         		Log.e(TAG, "Got a DISPLAY_GPX action with no file?");
         	}
@@ -84,8 +85,8 @@ public class StfuLiveCardService extends Service {
     }
 
 	private void setText(String text) {
-		mLiveCardView.setTextViewText(R.id.text, text);
-		mLiveCard.setViews(mLiveCardView);
+		liveCardView.setTextViewText(R.id.text, text);
+		liveCard.setViews(liveCardView);
 	}
     
     /**
@@ -108,15 +109,15 @@ public class StfuLiveCardService extends Service {
             if(!isStopped()){
             	int val = mRandom.nextInt(3);
             	if (val == 0) {
-                  mLiveCardView.setTextViewText(R.id.text, "Leslie is a loser.");
+                  liveCardView.setTextViewText(R.id.text, "Leslie is a loser.");
             	} else if (val == 1) {
-                  mLiveCardView.setTextViewText(R.id.text, "Nobody likes Leslie.");
+                  liveCardView.setTextViewText(R.id.text, "Nobody likes Leslie.");
             	} else {
-                  mLiveCardView.setTextViewText(R.id.text, "Leslie stinks.");
+                  liveCardView.setTextViewText(R.id.text, "Leslie stinks.");
             	}
 
                 // Always call setViews() to update the live card's RemoteViews.
-                mLiveCard.setViews(mLiveCardView);
+                liveCard.setViews(liveCardView);
 
                 // Queue another score update in 30 seconds.
                 mHandler.postDelayed(mUpdateLiveCardRunnable, DELAY_MILLIS);
@@ -134,11 +135,11 @@ public class StfuLiveCardService extends Service {
     
     @Override
     public void onDestroy() {
-        if (mLiveCard != null && mLiveCard.isPublished()) {
+        if (liveCard != null && liveCard.isPublished()) {
         	//Stop the handler from queuing more Runnable jobs
             mUpdateLiveCardRunnable.setStop(true);
-            mLiveCard.unpublish();
-            mLiveCard = null;
+            liveCard.unpublish();
+            liveCard = null;
         }
         super.onDestroy();
     }

@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
     @Override
     public void onResume() {
       super.onResume();
-      // BUG: have to hit back twice before the menu can be re-opened.
+      // is this needed?
       if (isAttached) {
         openOptionsMenu();
       }

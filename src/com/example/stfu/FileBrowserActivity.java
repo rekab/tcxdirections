@@ -22,20 +22,20 @@ public class FileBrowserActivity extends Activity {
 
     public static final String FILE_RESULT = "picked_file";
 	private static final String TAG = "FileBrowser";
-    private CardScrollView mCardScrollView;
-    List<GpxFileCard> mCards;
+    private CardScrollView cardScrollView;
+    List<GpxFileCard> cards;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createCards(Filesystem.getStorageDirectory());
         GpxFileCardScrollAdapter adapter = new GpxFileCardScrollAdapter();
-        mCardScrollView = new CardScrollView(this);
-        mCardScrollView.setAdapter(adapter);
-        mCardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        cardScrollView = new CardScrollView(this);
+        cardScrollView.setAdapter(adapter);
+        cardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-				String filename = mCards.get(pos).getFilename();
+				String filename = cards.get(pos).getFilename();
 				Log.i(TAG, "clicked: " + filename);
 				Intent returnIntent = new Intent();
 				returnIntent.putExtra(FILE_RESULT, filename);
@@ -44,19 +44,19 @@ public class FileBrowserActivity extends Activity {
 				finish();
 			}
         });
-        mCardScrollView.activate();
-        setContentView(mCardScrollView);
+        cardScrollView.activate();
+        setContentView(cardScrollView);
     }
 
     private void createCards(File storageDirectory) {
-        mCards = new ArrayList<GpxFileCard>();
+        cards = new ArrayList<GpxFileCard>();
         for (File file : storageDirectory.listFiles()) {
             if (file.isFile() && file.getName().endsWith(".gpx")) {
                 GpxFileCard card = new GpxFileCard(this);
                 // TODO: gpx parser should extract the title
                 Log.i(TAG, "creating card for " + file.getName());
                 card.setFile(file);
-                mCards.add(card);
+                cards.add(card);
             }
         }
     }
@@ -80,17 +80,17 @@ public class FileBrowserActivity extends Activity {
     private class GpxFileCardScrollAdapter extends CardScrollAdapter {
     	@Override
         public int getPosition(Object item) {
-            return mCards.indexOf(item);
+            return cards.indexOf(item);
         }
 
         @Override
         public int getCount() {
-            return mCards.size();
+            return cards.size();
         }
 
         @Override
         public Object getItem(int position) {
-            return mCards.get(position);
+            return cards.get(position);
         }
 
         /**
@@ -99,6 +99,7 @@ public class FileBrowserActivity extends Activity {
         @Override
         public int getViewTypeCount() {
             return Card.getViewTypeCount();
+            // todo: return 1
         }
 
         /**
@@ -107,12 +108,13 @@ public class FileBrowserActivity extends Activity {
          */
         @Override
         public int getItemViewType(int position){
-            return mCards.get(position).getItemViewType();
+            return cards.get(position).getItemViewType();
+            // todo: return 0
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return  mCards.get(position).getView(convertView, parent);
+            return  cards.get(position).getView(convertView, parent);
         }
 
 
