@@ -75,8 +75,9 @@ public final class R {
         public static final int water=0x7f020007;
     }
     public static final class id {
-        public static final int action_browse=0x7f09001f;
-        public static final int action_scan=0x7f090020;
+        public static final int action_browse_files=0x7f090021;
+        public static final int action_browse_route=0x7f090020;
+        public static final int action_scan=0x7f090022;
         public static final int app_picker_list_item_icon=0x7f09000a;
         public static final int app_picker_list_item_label=0x7f09000b;
         public static final int bookmark_title=0x7f09000c;
@@ -102,6 +103,7 @@ public final class R {
         public static final int restart_preview=0x7f090005;
         public static final int result_list_view=0x7f09001c;
         public static final int return_scan_result=0x7f090006;
+        public static final int route_actions_menu_group=0x7f09001f;
         public static final int route_point_description=0x7f090016;
         public static final int route_point_icon=0x7f090015;
         public static final int snippet_view=0x7f09001e;
@@ -133,7 +135,8 @@ public final class R {
         public static final int beep=0x7f050000;
     }
     public static final class string {
-        public static final int action_browse=0x7f0a007d;
+        public static final int action_browse_files=0x7f0a007d;
+        public static final int action_browse_route=0x7f0a007e;
         public static final int action_help=0x7f0a007b;
         /**  Actions 
          */

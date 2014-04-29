@@ -1,6 +1,7 @@
 package com.example.stfu;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -59,23 +60,17 @@ public class StfuLiveCardService extends Service {
                 R.layout.live_card_layout);
             setText("Tap for options");
             
-            // Set up the live card's action with a pending intent
-            // to show a menu when tapped
-            Intent menuIntent = new Intent(this, MainActivity.class);
-            menuIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                    Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            liveCard.setAction(PendingIntent.getActivity(
-                    this, 0, menuIntent, 0));
+            setMenuPendingIntent(null);
             
             liveCard.publish(PublishMode.REVEAL);
             //mHandler.post(mUpdateLiveCardRunnable);
         } else if (intent.getAction().equals(DISPLAY_GPX)) {
         	if (intent.hasExtra(FILE_PATH)) {
         		File gpxFile = new File(intent.getStringExtra(FILE_PATH));
-        		List<RoutePoint> route = GpxReader.getRoutePoints(gpxFile);
-        		//Log.i(TAG, "loaded route " + route);
+        		ArrayList<RoutePoint> route = GpxReader.getRoutePoints(gpxFile);
+        		Log.i(TAG, "loaded route " + route);
+        		setMenuPendingIntent(route);
         		liveCard.setViews(new RoutePointCard(getPackageName(), route.get(0)).getView());
-        		//setText(route.get(0).getDescription());
         	} else {
         		Log.e(TAG, "Got a DISPLAY_GPX action with no file?");
         	}
@@ -83,6 +78,15 @@ public class StfuLiveCardService extends Service {
         Log.d(TAG, "returning from onStartCommand()");
         return START_STICKY;
     }
+
+	/**
+     * Set up the live card's action with a pending intent
+     * to show a menu when tapped.
+	 */
+	private void setMenuPendingIntent(ArrayList<RoutePoint> route) {
+		liveCard.setAction(PendingIntent.getActivity(
+		        this, 0, MainActivity.newIntent(this, route), 0));
+	}
 
 	private void setText(String text) {
 		liveCardView.setTextViewText(R.id.text, text);

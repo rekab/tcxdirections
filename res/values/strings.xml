@@ -3,6 +3,7 @@
 
     <string name="app_name">stfu</string>
     <string name="action_scan">Scan QR code</string>
-    <string name="action_browse">Browse files</string>
-
+    <string name="action_browse_files">Browse files</string>
+    <string name="action_browse_route">Browse route</string>
+    
 </resources>

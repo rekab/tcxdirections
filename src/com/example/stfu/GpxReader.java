@@ -22,8 +22,8 @@ import android.util.Log;
 
 
 public class GpxReader {
-	public static List<RoutePoint> getRoutePoints(File source) {
-		List<RoutePoint> points = new ArrayList<RoutePoint>();
+	public static ArrayList<RoutePoint> getRoutePoints(File source) {
+		ArrayList<RoutePoint> points = new ArrayList<RoutePoint>();
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
 		try {

@@ -29,8 +29,9 @@ int drawable right_arrow 0x7f020004
 int drawable right_arrow_source 0x7f020005
 int drawable straight_arrow 0x7f020006
 int drawable water 0x7f020007
-int id action_browse 0x7f09001f
-int id action_scan 0x7f090020
+int id action_browse_files 0x7f090021
+int id action_browse_route 0x7f090020
+int id action_scan 0x7f090022
 int id app_picker_list_item_icon 0x7f09000a
 int id app_picker_list_item_label 0x7f09000b
 int id bookmark_title 0x7f09000c
@@ -56,6 +57,7 @@ int id quit 0x7f090004
 int id restart_preview 0x7f090005
 int id result_list_view 0x7f09001c
 int id return_scan_result 0x7f090006
+int id route_actions_menu_group 0x7f09001f
 int id route_point_description 0x7f090016
 int id route_point_icon 0x7f090015
 int id snippet_view 0x7f09001e
@@ -79,7 +81,8 @@ int menu capture 0x7f0c0000
 int menu launch 0x7f0c0001
 int menu main 0x7f0c0002
 int raw beep 0x7f050000
-int string action_browse 0x7f0a007d
+int string action_browse_files 0x7f0a007d
+int string action_browse_route 0x7f0a007e
 int string action_help 0x7f0a007b
 int string action_open_browser 0x7f0a0078
 int string action_scan 0x7f0a007c

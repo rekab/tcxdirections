@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 import com.github.barcodeeye.migrated.Intents;
 import com.github.barcodeeye.scan.CaptureActivity;
@@ -30,12 +31,11 @@ public class MainActivity extends Activity {
 
 
     private boolean shouldFinishOnMenuClose;
-    private DownloadManager dm;
-    private long downloadRequestId;
-	private boolean isAttached = false;
+    private boolean isAttached = false;
     private static final String TAG = "Menu";
     private static final int SCAN_BARCODE = 0;
     private static final int PICK_FILE = 1;
+	public static final String ROUTE_EXTRA = "route";
 
     @Override
     public void onAttachedToWindow() {
@@ -44,10 +44,11 @@ public class MainActivity extends Activity {
         // TODO: display card selector if a file is already loaded?
         openOptionsMenu();
     }
+
     @Override
     public void onResume() {
       super.onResume();
-      // is this needed?
+      // TODO: is isAttached needed?
       if (isAttached) {
         openOptionsMenu();
       }
@@ -57,8 +58,19 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        ArrayList<RoutePoint> route = getRoute();
+        menu.setGroupVisible(R.id.route_actions_menu_group, route != null);
         return true;
     }
+
+	/**
+	 * @return
+	 */
+	private ArrayList<RoutePoint> getRoute() {
+		Intent intentOrigin = getIntent();
+        ArrayList<RoutePoint> route = intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA);
+		return route;
+	}
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -74,15 +86,19 @@ public class MainActivity extends Activity {
             intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
             startActivityForResult(intent, SCAN_BARCODE);
             return true;
-        } else if (id == R.id.action_browse) {
+        } else if (id == R.id.action_browse_files) {
+            // Keep the activity running until we get an activity result.
         	shouldFinishOnMenuClose = false;
-        	//shouldFinishOnMenuClose = true;
         	Log.i(TAG, "starting file browser activity");
             // Start a card-based file browser
         	Intent intent = new Intent(this, FileBrowserActivity.class);
         	//intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // wat?
         	startActivityForResult(intent, PICK_FILE);
         	return true;
+        } else if (id == R.id.action_browse_route) {
+        	shouldFinishOnMenuClose = true; // Not expecting an activity result.
+        	Log.i(TAG, "starting route browser activity");
+        	startActivity(BrowseRouteActivity.newIntent(this, getRoute()));
         }
         
         shouldFinishOnMenuClose = true; // We're not expecting an activity result.
@@ -230,5 +246,15 @@ public class MainActivity extends Activity {
             return file.getAbsolutePath();
         }
     }
+
+	public static Intent newIntent(Context ctx, ArrayList<RoutePoint> route) {
+		Intent menuIntent = new Intent(ctx, MainActivity.class);
+		menuIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+		        Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		if (route != null) {
+			menuIntent.putParcelableArrayListExtra(ROUTE_EXTRA, route);
+		}
+		return menuIntent;
+	}
 }
 ;

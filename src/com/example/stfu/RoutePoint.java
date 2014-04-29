@@ -1,17 +1,39 @@
 package com.example.stfu;
 
 import android.location.Location;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class RoutePoint extends Location {
+public class RoutePoint extends Location implements Parcelable {
 
 	private String desc;
 	private String name;
+
+    public static final Parcelable.Creator<RoutePoint> CREATOR
+    	= new Parcelable.Creator<RoutePoint>() {
+		public RoutePoint createFromParcel(Parcel in) {
+		    return new RoutePoint(in);
+		}
+		
+		public RoutePoint[] newArray(int size) {
+		    return new RoutePoint[size];
+		}
+	};
 
 	public RoutePoint(String provider, String name, String desc) {
 		super(provider);
 		setName(name);
 		setDescription(desc);
 	}
+	
+	private RoutePoint(Parcel in) {
+		super(in.readString());
+		setName(in.readString());
+		setDescription(in.readString());
+		setLatitude(in.readDouble());
+		setLongitude(in.readDouble());
+	}
+
 
 	public String getDescription() {
 		return desc;
