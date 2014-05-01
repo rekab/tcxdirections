@@ -55,10 +55,16 @@ public class MainActivity extends Activity {
     }
     
     @Override
+    protected void onNewIntent(Intent i) {
+    	Log.i(TAG, "onNewIntent called");
+    }
+    
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         ArrayList<RoutePoint> route = getRoute();
+        Log.i(TAG, "opening options menu, route = " + route);
         menu.setGroupVisible(R.id.route_actions_menu_group, route != null);
         return true;
     }
@@ -69,6 +75,8 @@ public class MainActivity extends Activity {
 	private ArrayList<RoutePoint> getRoute() {
 		Intent intentOrigin = getIntent();
         ArrayList<RoutePoint> route = intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA);
+        Log.i(TAG, "intent = " + intentOrigin + " intent.getExtras()="+intentOrigin.getExtras()
+        		+ " route=" + route);
 		return route;
 	}
 
@@ -98,6 +106,9 @@ public class MainActivity extends Activity {
         } else if (id == R.id.action_browse_route) {
         	shouldFinishOnMenuClose = true; // Not expecting an activity result.
         	Log.i(TAG, "starting route browser activity");
+        	// TODO: call and expect a result: pick a different destination
+        	// This destination should be a route point index, then we should call
+        	// back to the service to change its index
         	startActivity(BrowseRouteActivity.newIntent(this, getRoute()));
         }
         
@@ -137,18 +148,17 @@ public class MainActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 String filePath = data.getStringExtra(FileBrowserActivity.FILE_RESULT);
                 Log.i(TAG, "will open " + filePath);
-                displayGpx(filePath);
+                displayGpx(filePath, 0);
             }
         }
         // We're done here.
         finish();
     }
 
-    private void displayGpx(String filePath) {
+    private void displayGpx(String filePath, int index) {
         Log.i(TAG, "Launching intent for " + filePath);
-		Intent intent = new Intent(this, StfuLiveCardService.class);
-		intent.setAction(StfuLiveCardService.DISPLAY_GPX);
-		intent.putExtra(StfuLiveCardService.FILE_PATH, filePath);
+        Intent intent = StfuLiveCardService.newDisplayRouteIntent(this, filePath, index);
+
 		startService(intent);
 		finish();
 	}
@@ -186,7 +196,7 @@ public class MainActivity extends Activity {
             } else {
                 Log.i(TAG, "Downloaded " + filePath);
                 // launch intent for the service to pick up
-                displayGpx(filePath);
+                displayGpx(filePath, 0);
             }
         }
 
@@ -252,7 +262,11 @@ public class MainActivity extends Activity {
 		menuIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
 		        Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		if (route != null) {
+			Log.i(TAG, "creating intent to call MainActivity with a route");
 			menuIntent.putParcelableArrayListExtra(ROUTE_EXTRA, route);
+			Log.i(TAG, "stored: " + menuIntent.getParcelableArrayListExtra(ROUTE_EXTRA));
+		} else {
+			Log.i(TAG, "NOT creating intent to call MainActivity - there is no route");
 		}
 		return menuIntent;
 	}

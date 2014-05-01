@@ -10,6 +10,7 @@ import com.google.android.glass.timeline.LiveCard.PublishMode;
 
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -29,6 +30,7 @@ public class StfuLiveCardService extends Service {
 	public static final long DELAY_MILLIS = 3000;
 	protected static final String FILE_PATH = "file_path";
 	public static final String DISPLAY_GPX = "display_gpx";
+	private static final String ROUTE_INDEX = "route_index";
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -58,8 +60,8 @@ public class StfuLiveCardService extends Service {
             // Inflate a layout into a remote view
             liveCardView = new RemoteViews(getPackageName(),
                 R.layout.live_card_layout);
-            setText("Tap for options");
-            
+    		liveCardView.setTextViewText(R.id.text, "Tap for options");
+    		liveCard.setViews(liveCardView);
             setMenuPendingIntent(null);
             
             liveCard.publish(PublishMode.REVEAL);
@@ -70,7 +72,11 @@ public class StfuLiveCardService extends Service {
         		ArrayList<RoutePoint> route = GpxReader.getRoutePoints(gpxFile);
         		Log.i(TAG, "loaded route " + route);
         		setMenuPendingIntent(route);
-        		liveCard.setViews(new RoutePointCard(getPackageName(), route.get(0)).getView());
+        		int routeIndex = intent.getIntExtra(ROUTE_INDEX, 0);
+        		// TODO: here we should setup a RouteTracker
+        		liveCardView = new RoutePointCard(route.get(routeIndex)).getRemoteViews(
+        				getPackageName());
+        		liveCard.setViews(liveCardView);
         	} else {
         		Log.e(TAG, "Got a DISPLAY_GPX action with no file?");
         	}
@@ -85,14 +91,9 @@ public class StfuLiveCardService extends Service {
 	 */
 	private void setMenuPendingIntent(ArrayList<RoutePoint> route) {
 		liveCard.setAction(PendingIntent.getActivity(
-		        this, 0, MainActivity.newIntent(this, route), 0));
+		        this, 0, MainActivity.newIntent(this, route), PendingIntent.FLAG_CANCEL_CURRENT));
 	}
 
-	private void setText(String text) {
-		liveCardView.setTextViewText(R.id.text, text);
-		liveCard.setViews(liveCardView);
-	}
-    
     /**
      * Runnable that updates live card contents
      */
@@ -147,4 +148,13 @@ public class StfuLiveCardService extends Service {
         }
         super.onDestroy();
     }
+
+	public static Intent newDisplayRouteIntent(Context ctx,
+			String filePath, int index) {
+		Intent intent = new Intent(ctx, StfuLiveCardService.class);
+		intent.setAction(DISPLAY_GPX);
+		intent.putExtra(FILE_PATH, filePath);
+		intent.putExtra(ROUTE_INDEX, index);
+		return intent;
+	}
 }
