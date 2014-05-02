@@ -210,6 +210,7 @@ int string wifi_ssid_label 0x7f0a0074
 int string wifi_type_label 0x7f0a0075
 int style AppBaseTheme 0x7f0b000b
 int style AppTheme 0x7f0b0009
+int style BrowseTheme 0x7f0b000d
 int style Capture_Text_Content 0x7f0b0007
 int style Capture_Text_Hint 0x7f0b0004
 int style Capture_Text_Label 0x7f0b0005

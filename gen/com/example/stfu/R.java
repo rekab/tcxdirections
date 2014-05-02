@@ -292,6 +292,7 @@ public final class R {
  All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f0b0009;
+        public static final int BrowseTheme=0x7f0b000d;
         public static final int Capture_Text_Content=0x7f0b0007;
         /**  Capture 
          */
