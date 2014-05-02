@@ -30,9 +30,10 @@ public class BrowseRouteActivity extends Activity {
 			Log.e(TAG, "failed getting route from intent");
 			return;
 		}
+		Log.i(TAG, "parcelableRoute.size()="+parcelableRoute.size());
 		cards = new ArrayList<RoutePointCard>(parcelableRoute.size());
 		for (int i = 0; i < parcelableRoute.size(); i++) {
-			cards.set(i, new RoutePointCard((RoutePoint) parcelableRoute.get(i)));
+			cards.add(new RoutePointCard((RoutePoint) parcelableRoute.get(i)));
 		}
 		cardScrollView = new CardScrollView(this);
 		cardScrollView.setAdapter(new RoutePointCardScrollAdapter());
