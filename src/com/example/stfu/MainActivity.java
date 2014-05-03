@@ -1,7 +1,6 @@
 package com.example.stfu;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,25 +8,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import com.example.stfu.model.Route;
-import com.example.stfu.model.RoutePoint;
-import com.github.barcodeeye.migrated.Intents;
-import com.github.barcodeeye.scan.CaptureActivity;
-
-import android.os.AsyncTask;
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.app.DownloadManager.Request;
-import android.content.BroadcastReceiver;
+
+import com.example.stfu.model.RoutePoint;
+import com.github.barcodeeye.migrated.Intents;
+import com.github.barcodeeye.scan.CaptureActivity;
 
 public class MainActivity extends Activity {
 
@@ -61,7 +53,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        Route route = getRoute();
+        ArrayList<RoutePoint> route = getRoute();
         Log.i(TAG, "opening options menu, route = " + route);
         menu.setGroupVisible(R.id.route_actions_menu_group, route != null);
         return true;
@@ -70,13 +62,13 @@ public class MainActivity extends Activity {
 	/**
 	 * @return
 	 */
-	private Route getRoute() {
+	private ArrayList<RoutePoint> getRoute() {
 		Intent intentOrigin = getIntent();
 		if (intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA) == null) {
 			return null;
 		}
-        Route route = new Route(intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA));
-        Log.i(TAG, "intent = " + intentOrigin + " intent.getExtras()="+intentOrigin.getExtras()
+        ArrayList<RoutePoint> route = intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA);
+        Log.d(TAG, "intent = " + intentOrigin + " intent.getExtras()="+intentOrigin.getExtras()
         		+ " route=" + route);
 		return route;
 	}
