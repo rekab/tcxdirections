@@ -31,6 +31,8 @@ public class StfuLiveCardService extends Service {
 	protected static final String FILE_PATH = "file_path";
 	public static final String DISPLAY_GPX = "display_gpx";
 	private static final String ROUTE_INDEX = "route_index";
+	private static final String PICK_DESTINATION_CARD = "pick_card";
+	private ArrayList<RoutePoint> route = null;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -62,36 +64,55 @@ public class StfuLiveCardService extends Service {
                 R.layout.live_card_layout);
     		liveCardView.setTextViewText(R.id.text, "Tap for options");
     		liveCard.setViews(liveCardView);
-            setMenuPendingIntent(null);
+            setMenuPendingIntent();
             
             liveCard.publish(PublishMode.REVEAL);
             //mHandler.post(mUpdateLiveCardRunnable);
         } else if (intent.getAction().equals(DISPLAY_GPX)) {
         	if (intent.hasExtra(FILE_PATH)) {
         		File gpxFile = new File(intent.getStringExtra(FILE_PATH));
-        		ArrayList<RoutePoint> route = GpxReader.getRoutePoints(gpxFile);
+        		route = GpxReader.getRoutePoints(gpxFile);
         		Log.i(TAG, "loaded route " + route);
-        		setMenuPendingIntent(route);
+        		setMenuPendingIntent();
         		int routeIndex = intent.getIntExtra(ROUTE_INDEX, 0);
         		// TODO: here we should setup a RouteTracker
-        		liveCardView = new RoutePointCard(route.get(routeIndex)).getRemoteViews(
-        				getPackageName());
-        		liveCard.setViews(liveCardView);
+        		setDestination(routeIndex);
         	} else {
         		Log.e(TAG, "Got a DISPLAY_GPX action with no file?");
         	}
+        } else if (intent.getAction().equals(PICK_DESTINATION_CARD)) {
+    		int routeIndex = intent.getIntExtra(ROUTE_INDEX, 0);
+    		setDestination(routeIndex);
+        } else {
+        	Log.e(TAG, "Unknown action for intent: " + intent.getAction());
         }
         Log.d(TAG, "returning from onStartCommand()");
         return START_STICKY;
     }
 
 	/**
+	 * Display a point on the route.
+	 * @param routeIndex
+	 */
+	private void setDestination(int routeIndex) {
+    	if (route == null) {
+    		Log.e(TAG, "wtf can't pick a destination without a route!");
+    		return;
+    	}
+		liveCardView = new RoutePointCard(route.get(routeIndex)).getRemoteViews(
+				getPackageName());
+		liveCard.setViews(liveCardView);
+	}
+
+	/**
      * Set up the live card's action with a pending intent
      * to show a menu when tapped.
 	 */
-	private void setMenuPendingIntent(ArrayList<RoutePoint> route) {
+	private void setMenuPendingIntent() {
 		liveCard.setAction(PendingIntent.getActivity(
-		        this, 0, MainActivity.newIntent(this, route), PendingIntent.FLAG_CANCEL_CURRENT));
+		        this, 0, 
+		        MainActivity.newIntent(this, route), // pass the route
+		        PendingIntent.FLAG_CANCEL_CURRENT /* clear the existing pending intent */));
 	}
 
     /**
@@ -155,6 +176,14 @@ public class StfuLiveCardService extends Service {
 		intent.setAction(DISPLAY_GPX);
 		intent.putExtra(FILE_PATH, filePath);
 		intent.putExtra(ROUTE_INDEX, index);
+		return intent;
+	}
+
+	public static Intent newDisplayDestinationIntent(Context ctx,
+			int picked) {
+		Intent intent = new Intent(ctx, StfuLiveCardService.class);
+		intent.setAction(PICK_DESTINATION_CARD);
+		intent.putExtra(ROUTE_INDEX, picked);
 		return intent;
 	}
 }

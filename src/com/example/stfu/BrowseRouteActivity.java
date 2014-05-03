@@ -15,10 +15,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
+import android.widget.AdapterView;
 
 public class BrowseRouteActivity extends Activity {
 	private static final String ROUTE_EXTRA = "route";
 	private static final String TAG = "BaseRouteActivity";
+	public static final String PICKED_CARD = "picked_card";
 	ArrayList<RoutePointCard> cards;
     private CardScrollView cardScrollView;
 
@@ -38,6 +40,17 @@ public class BrowseRouteActivity extends Activity {
 		cardScrollView = new CardScrollView(this);
 		cardScrollView.setAdapter(new RoutePointCardScrollAdapter());
 		// TODO: cardScrollView.setOnItemClickListener() -- to pick a point
+		cardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+				Log.i(TAG, "picked card #" + pos);
+				Intent returnIntent = new Intent();
+				returnIntent.putExtra(PICKED_CARD, pos);
+				setResult(RESULT_OK, returnIntent);
+				Log.i(TAG, "set result, calling finish()");
+				finish();
+			}
+		});
 		cardScrollView.activate();
 		setContentView(cardScrollView);
 	}
