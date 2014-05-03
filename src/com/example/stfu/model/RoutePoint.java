@@ -1,4 +1,4 @@
-package com.example.stfu;
+package com.example.stfu.model;
 
 import android.location.Location;
 import android.os.Parcel;

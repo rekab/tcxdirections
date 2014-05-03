@@ -2,6 +2,8 @@ package com.example.stfu;
 
 import java.util.List;
 
+import com.example.stfu.model.RoutePoint;
+
 public class RouteTracker {
 	private List<RoutePoint> routePoints;
 	private int currentDestinationIndex;

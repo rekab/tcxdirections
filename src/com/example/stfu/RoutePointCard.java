@@ -1,5 +1,6 @@
 package com.example.stfu;
 
+import com.example.stfu.model.RoutePoint;
 import com.google.android.glass.app.Card;
 
 import android.content.Context;

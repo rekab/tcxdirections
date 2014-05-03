@@ -9,6 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import com.example.stfu.model.Route;
+import com.example.stfu.model.RoutePoint;
 import com.github.barcodeeye.migrated.Intents;
 import com.github.barcodeeye.scan.CaptureActivity;
 
@@ -33,9 +35,9 @@ public class MainActivity extends Activity {
     private boolean shouldFinishOnMenuClose;
     private boolean isAttached = false;
     private static final String TAG = "Menu";
-    private static final int SCAN_BARCODE = 0;
-    private static final int PICK_FILE = 1;
-    private static final int PICK_DESTINATION = 2;
+    private static final int SCAN_BARCODE_ACTION = 0;
+    private static final int PICK_FILE_ACTION = 1;
+    private static final int PICK_DESTINATION_ACTION = 2;
 	public static final String ROUTE_EXTRA = "route";
 
     @Override
@@ -59,7 +61,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        ArrayList<RoutePoint> route = getRoute();
+        Route route = getRoute();
         Log.i(TAG, "opening options menu, route = " + route);
         menu.setGroupVisible(R.id.route_actions_menu_group, route != null);
         return true;
@@ -68,9 +70,12 @@ public class MainActivity extends Activity {
 	/**
 	 * @return
 	 */
-	private ArrayList<RoutePoint> getRoute() {
+	private Route getRoute() {
 		Intent intentOrigin = getIntent();
-        ArrayList<RoutePoint> route = intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA);
+		if (intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA) == null) {
+			return null;
+		}
+        Route route = new Route(intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA));
         Log.i(TAG, "intent = " + intentOrigin + " intent.getExtras()="+intentOrigin.getExtras()
         		+ " route=" + route);
 		return route;
@@ -88,7 +93,7 @@ public class MainActivity extends Activity {
 
             Intent intent = CaptureActivity.newIntent(this);
             intent.putExtra(Intents.Scan.MODE, Intents.Scan.QR_CODE_MODE);
-            startActivityForResult(intent, SCAN_BARCODE);
+            startActivityForResult(intent, SCAN_BARCODE_ACTION);
             return true;
         } else if (id == R.id.action_browse_files) {
             // Keep the activity running until we get an activity result.
@@ -97,16 +102,16 @@ public class MainActivity extends Activity {
             // Start a card-based file browser
         	Intent intent = new Intent(this, FileBrowserActivity.class);
         	//intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // wat?
-        	startActivityForResult(intent, PICK_FILE);
+        	startActivityForResult(intent, PICK_FILE_ACTION);
         	return true;
         } else if (id == R.id.action_browse_route) {
             // Keep the activity running until we get an activity result.
         	shouldFinishOnMenuClose = false;
         	Log.i(TAG, "starting route browser activity");
         	// Call and expect a result: pick a different destination
-        	// This destination should be a route point index, then we should call
-        	// back to the service to change its route index.
-        	startActivityForResult(BrowseRouteActivity.newIntent(this, getRoute()), PICK_DESTINATION);
+        	// This destination should be a route point index, then it should call
+        	// back to the livecard service to change its route index.
+        	startActivityForResult(BrowseRouteActivity.newIntent(this, getRoute()), PICK_DESTINATION_ACTION);
         	return true;
         }
         
@@ -123,7 +128,7 @@ public class MainActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "Got activity requestCode: " + requestCode +
               " result: " + resultCode + " " + data);
-        if (requestCode == SCAN_BARCODE) {
+        if (requestCode == SCAN_BARCODE_ACTION) {
             if (resultCode == RESULT_OK) {
                 String uriString = data.getStringExtra(CaptureActivity.BARCODE_RESULT);
                 Log.i(TAG, "should fetch " + uriString);
@@ -139,13 +144,13 @@ public class MainActivity extends Activity {
                 }
             }
             // TODO: display error
-        } else if (requestCode == PICK_FILE) {
+        } else if (requestCode == PICK_FILE_ACTION) {
             if (resultCode == RESULT_OK) {
                 String filePath = data.getStringExtra(FileBrowserActivity.FILE_RESULT);
                 Log.i(TAG, "will open " + filePath);
                 displayGpx(filePath, 0);
             }
-        } else if (requestCode == PICK_DESTINATION) {
+        } else if (requestCode == PICK_DESTINATION_ACTION) {
         	if (resultCode == RESULT_OK) {
         		int picked = data.getIntExtra(BrowseRouteActivity.PICKED_CARD, 0);
         		Log.i(TAG, "picked card #" + picked);
