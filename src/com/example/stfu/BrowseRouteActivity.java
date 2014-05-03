@@ -39,7 +39,7 @@ public class BrowseRouteActivity extends Activity {
 		}
 		cardScrollView = new CardScrollView(this);
 		cardScrollView.setAdapter(new RoutePointCardScrollAdapter());
-		// TODO: cardScrollView.setOnItemClickListener() -- to pick a point
+		cardScrollView.setHorizontalScrollBarEnabled(true);
 		cardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {

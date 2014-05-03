@@ -32,6 +32,7 @@ public class FileBrowserActivity extends Activity {
         GpxFileCardScrollAdapter adapter = new GpxFileCardScrollAdapter();
         cardScrollView = new CardScrollView(this);
         cardScrollView.setAdapter(adapter);
+        cardScrollView.setHorizontalScrollBarEnabled(true);
         cardScrollView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
