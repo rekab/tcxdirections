@@ -2,7 +2,9 @@ package com.example.stfu;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -28,7 +30,7 @@ public class StfuLiveCardService extends Service {
 	private LiveCard liveCard;
 	private RemoteViews liveCardView;
     private final Handler handler = new Handler();
-	private UpdateLiveCardRunnable mUpdateLiveCardRunnable = new UpdateLiveCardRunnable();
+	private UpdateLiveCardRunnable updateRunnable = new UpdateLiveCardRunnable();
 
 	private static final String TAG = "StfuLiveCardService";
 	public static final long DELAY_MILLIS = 2000;
@@ -45,6 +47,9 @@ public class StfuLiveCardService extends Service {
 	private int currentDestinationRouteIndex;
 	private ArrayList<RoutePoint> route = null;
 	private PendingIntent proximityAlert = null;
+	protected static final boolean USE_TEST_LOCATION_PROVIDER = true; // For testing
+	private static final String TEST_PROVIDER_NAME = "test_provider";
+	private static final String TEST_FILE_LOCATION = Filesystem.getStorageDirectory() + "/2550337.gpx";
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -66,33 +71,52 @@ public class StfuLiveCardService extends Service {
         super.onCreate();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-		locationListener = new LocationListener() {
-			
-			@Override
-			public void onStatusChanged(String provider, int status, Bundle extras) {
-			}
-			
-			@Override
-			public void onProviderEnabled(String provider) {
-			}
-			
-			@Override
-			public void onProviderDisabled(String provider) {
-			}
-			
-			@Override
-			public void onLocationChanged(Location location) {
-				latestLocation = location;
-				Log.i(TAG, "got new location: " + location);
-			}
-		};
+        if (locationListener == null) {
+			locationListener = new LocationListener() {
+				@Override
+				public void onStatusChanged(String provider, int status, Bundle extras) {
+				}
+
+				@Override
+				public void onProviderEnabled(String provider) {
+				}
+
+				@Override
+				public void onProviderDisabled(String provider) {
+				}
+
+				@Override
+				public void onLocationChanged(Location location) {
+					latestLocation = location;
+					Log.i(TAG, "got new location: " + location);
+					// Because Glass doesn't have an emulator, and because proximity
+					// alerts can't choose a provider, we have to fake it here.
+					if (USE_TEST_LOCATION_PROVIDER && currentDestinationRouteIndex < route.size()) {
+						Location currentDest = route.get(currentDestinationRouteIndex);
+						if (latestLocation.distanceTo(currentDest) < APPROACHING_DEST_ALERT_RADIUS_METERS) {
+							handleProximityAlert();
+						}
+					}
+				}
+			};
+        }
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		List<String> providers = locationManager.getProviders(
-		        criteria, true /* enabledOnly */);
-		for (String provider : providers) {
-			// TODO: how do we stop requesting updates?
-		    locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
+		if (USE_TEST_LOCATION_PROVIDER) {
+			/*locationManager.addTestProvider(TEST_PROVIDER_NAME, false, false, false, false,
+					true, true, true, Criteria.POWER_LOW, Criteria.ACCURACY_FINE);
+			locationManager.setTestProviderEnabled(TEST_PROVIDER_NAME, true);
+		    locationManager.requestLocationUpdates(TEST_PROVIDER_NAME, 0, 0, locationListener);*/
+		    File source = new File(TEST_FILE_LOCATION);
+		    Log.i(TAG, "Loading " + source.getAbsolutePath());
+			updateRunnable.setTestRoute(GpxReader.getTrackPoints(source));
+		} else {
+			List<String> providers = locationManager.getProviders(
+			        criteria, true /* enabledOnly */);
+			for (String provider : providers) {
+				// TODO: how do we stop requesting updates?
+			    locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
+			}
 		}
     }
     @Override
@@ -111,12 +135,20 @@ public class StfuLiveCardService extends Service {
         	if (intent.hasExtra(FILE_PATH)) {
         		File gpxFile = new File(intent.getStringExtra(FILE_PATH));
         		route = GpxReader.getRoutePoints(gpxFile);
-        		Log.i(TAG, "loaded route " + route);
-
-        		// Update the menu pending intent to reflect that we've got a route.
-        		setMenuPendingIntent();
-
-        		setDestination(intent.getIntExtra(ROUTE_INDEX, 0));
+        		if (route.size() == 0) {
+        			Log.e(TAG, "Route is empty!");
+        			// TODO: display an error
+        		} else {
+	        		Log.i(TAG, "loaded route " + route);
+	
+	        		// Update the menu pending intent to reflect that we've got a route.
+	        		setMenuPendingIntent();
+	
+	        		setDestination(intent.getIntExtra(ROUTE_INDEX, 0));
+        		}
+        		
+        		// Kick off the updates
+        		handler.postDelayed(updateRunnable, DELAY_MILLIS);
         	} else {
         		Log.e(TAG, "Got a DISPLAY_GPX_ACTION action with no file?");
         	}
@@ -124,24 +156,7 @@ public class StfuLiveCardService extends Service {
     		int routeIndex = intent.getIntExtra(ROUTE_INDEX, 0);
     		setDestination(routeIndex);
         } else if (intent.getAction().equals(PROXIMITY_ALERT_ACTION)) {
-        	Log.i(TAG, "Proximity alert");
-        	// TODO: turn on the screen, play a sound
-        	
-        	// Determine if we're approaching or have arrived at the destination
-        	RoutePoint dest = route.get(currentDestinationRouteIndex);
-        	if (haveArrivedAt(dest)) {
-        		Log.i(TAG, "have arrived at current destination");
-        		int nextDest = currentDestinationRouteIndex + 1;
-        		if (nextDest < route.size()) {
-        			Log.i(TAG, "advancing destination");
-        			setDestination(nextDest);
-        		} else {
-        			Log.i(TAG, "Arrived at finish!");
-        			// TODO: play a sound, shutdown or something
-        		}
-        	} else {
-        		setupArrivalProximityAlert();
-        	}
+        	handleProximityAlert();
         	
         } else {
         	Log.e(TAG, "Unknown action for intent: " + intent.getAction());
@@ -149,6 +164,31 @@ public class StfuLiveCardService extends Service {
         Log.i(TAG, "returning from onStartCommand()");
         return START_STICKY;
     }
+
+	private void handleProximityAlert() {
+		Log.i(TAG, "Proximity alert");
+		// TODO: turn on the screen, play a sound
+
+		// Determine if we're approaching or have arrived at the destination
+		RoutePoint dest = route.get(currentDestinationRouteIndex);
+		if (haveArrivedAt(dest)) {
+			handleArrivedAtDestination();
+		} else {
+			setupArrivalProximityAlert();
+		}
+	}
+
+	private void handleArrivedAtDestination() {
+		Log.i(TAG, "have arrived at current destination");
+		int nextDest = currentDestinationRouteIndex + 1;
+		if (nextDest < route.size()) {
+			Log.i(TAG, "advancing destination");
+			setDestination(nextDest);
+		} else {
+			Log.i(TAG, "Arrived at finish!");
+			// TODO: play a sound, shutdown or something
+		}
+	}
 
 	private void setupArrivalProximityAlert() {
 		Log.i(TAG, "setting arrival proximity alert");
@@ -214,9 +254,10 @@ public class StfuLiveCardService extends Service {
     /**
      * Runnable that updates live card contents
      */
-    private class UpdateLiveCardRunnable implements Runnable{
+    private class UpdateLiveCardRunnable implements Runnable {
 
         private boolean isStopped = false;
+        private Queue<RoutePoint> testRoutePoints = null;
 
 
         /*
@@ -228,21 +269,28 @@ public class StfuLiveCardService extends Service {
          * AsyncTask.
          */
         public void run(){
-            if(!isStopped()){
-            	// Get our current location
-            	
-            	// Determine if we're near the destination
-            	
-            	// Determine if we're at the destination
-            	
-            	// Determine if we're past the destination
+            if (!isStopped()){
+            	if (USE_TEST_LOCATION_PROVIDER &&
+            			testRoutePoints != null &&
+            			testRoutePoints.size() > 0) {
+            		Location location = testRoutePoints.remove();
+            		Log.i(TAG, "setting test location " + location);
+                    //locationManager.setTestProviderLocation(TEST_PROVIDER_NAME, location);
+            		locationListener.onLocationChanged(location);
+            	}
 
                 // Queue another update
-                handler.postDelayed(mUpdateLiveCardRunnable, DELAY_MILLIS);
+                handler.postDelayed(updateRunnable, DELAY_MILLIS);
             }
         }
 
-        public boolean isStopped() {
+        public void setTestRoute(ArrayList<RoutePoint> routePoints) {
+        	Log.i(TAG, "adding test route with size=" + routePoints.size());
+			testRoutePoints = new LinkedList<RoutePoint>();
+			testRoutePoints.addAll(routePoints);
+		}
+
+		public boolean isStopped() {
             return isStopped;
         }
 
@@ -255,7 +303,7 @@ public class StfuLiveCardService extends Service {
     public void onDestroy() {
         if (liveCard != null && liveCard.isPublished()) {
         	//Stop the handler from queuing more Runnable jobs
-            mUpdateLiveCardRunnable.setStop(true);
+            updateRunnable.setStop(true);
             liveCard.unpublish();
             liveCard = null;
         }

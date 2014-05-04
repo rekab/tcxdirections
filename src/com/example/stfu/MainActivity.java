@@ -272,7 +272,7 @@ public class MainActivity extends Activity {
 		if (route != null) {
 			Log.i(TAG, "creating intent to call MainActivity with a route");
 			menuIntent.putParcelableArrayListExtra(ROUTE_EXTRA, route);
-			Log.i(TAG, "stored: " + menuIntent.getParcelableArrayListExtra(ROUTE_EXTRA));
+			Log.d(TAG, "stored: " + menuIntent.getParcelableArrayListExtra(ROUTE_EXTRA));
 		} else {
 			Log.i(TAG, "NOT creating intent to call MainActivity - there is no route");
 		}

@@ -98,4 +98,52 @@ public class GpxReader {
 		point.setLongitude(Double.parseDouble(attrs.getNamedItem("lon").getTextContent()));
 		return point;
 	}
+
+	public static ArrayList<RoutePoint> getTrackPoints(File source) {
+		ArrayList<RoutePoint> points = new ArrayList<RoutePoint>();
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder;
+		try {
+			builder = factory.newDocumentBuilder();
+		} catch (ParserConfigurationException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+			return null;
+		}
+		FileInputStream input;
+		try {
+			input = new FileInputStream(source);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return null;
+		}
+        Document dom;
+		try {
+			dom = builder.parse(input);
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+        Element root = dom.getDocumentElement();
+        NodeList items = root.getElementsByTagName("trkseg");
+        
+        for (int i = 0; i < items.getLength(); i++) {
+        	Node item = items.item(i);
+            NodeList children = item.getChildNodes();
+            for (int j = 0 ; j < children.getLength(); j++) {
+            	Node child = children.item(j);
+            	if (child.getNodeName().equals("trkpt")) {
+            		RoutePoint point = getRoutePointFromNode(child);
+            		points.add(point);
+            	}
+            }
+        }
+        return points;
+	}
 }
