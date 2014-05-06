@@ -9,18 +9,23 @@ import java.util.Queue;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.RemoteViews;
 
 import com.example.stfu.model.RoutePoint;
+import com.google.android.glass.media.Sounds;
 import com.google.android.glass.timeline.LiveCard;
 import com.google.android.glass.timeline.LiveCard.PublishMode;
 
@@ -38,8 +43,8 @@ public class StfuLiveCardService extends Service {
 	public static final String DISPLAY_GPX_ACTION = "display_gpx";
 	private static final String ROUTE_INDEX = "route_index";
 	private static final String PICK_DESTINATION_CARD_ACTION = "pick_card";
-	private static final float APPROACHING_DEST_ALERT_RADIUS_METERS = 70;
-	private static final float ARRIVED_AT_DEST_ALERT_RADIUS_METERS = 20;
+	private static final float APPROACHING_DEST_ALERT_RADIUS_METERS = 100;
+	private static final float ARRIVED_AT_DEST_ALERT_RADIUS_METERS = 40;
 	private static final String PROXIMITY_ALERT_ACTION = "proximity_alert";
 	private LocationManager locationManager;
 	private LocationListener locationListener;
@@ -48,8 +53,11 @@ public class StfuLiveCardService extends Service {
 	private ArrayList<RoutePoint> route = null;
 	private PendingIntent proximityAlert = null;
 	protected static final boolean USE_TEST_LOCATION_PROVIDER = true; // For testing
-	private static final String TEST_PROVIDER_NAME = "test_provider";
 	private static final String TEST_FILE_LOCATION = Filesystem.getStorageDirectory() + "/2550337.gpx";
+	private static final long SCREEN_TIMEOUT_MS = 45 * 1000;
+	private PowerManager pm;
+	private PowerManager.WakeLock wl;
+	private AudioManager audio;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -70,6 +78,13 @@ public class StfuLiveCardService extends Service {
     public void onCreate() {
         super.onCreate();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+		pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		wl = pm.newWakeLock(
+				PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
+				PowerManager.ACQUIRE_CAUSES_WAKEUP |
+				PowerManager.ON_AFTER_RELEASE,
+				TAG);
+		audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         if (locationListener == null) {
 			locationListener = new LocationListener() {
@@ -167,7 +182,11 @@ public class StfuLiveCardService extends Service {
 
 	private void handleProximityAlert() {
 		Log.i(TAG, "Proximity alert");
-		// TODO: turn on the screen, play a sound
+		// Turn the screen on.
+		wl.acquire(SCREEN_TIMEOUT_MS);  // TODO: estimate time until arrival
+		
+		// Play a sound
+		audio.playSoundEffect(Sounds.SUCCESS);
 
 		// Determine if we're approaching or have arrived at the destination
 		RoutePoint dest = route.get(currentDestinationRouteIndex);
@@ -188,6 +207,9 @@ public class StfuLiveCardService extends Service {
 			Log.i(TAG, "Arrived at finish!");
 			// TODO: play a sound, shutdown or something
 		}
+
+		// Let the screen turn back off.
+		wl.release();
 	}
 
 	private void setupArrivalProximityAlert() {
