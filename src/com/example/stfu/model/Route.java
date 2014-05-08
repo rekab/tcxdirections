@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 
-public class Route extends ArrayList<RoutePoint> {
+public class Route extends ArrayList<CoursePoint> {
 
 	/**
 	 * 
@@ -19,7 +19,7 @@ public class Route extends ArrayList<RoutePoint> {
 		Log.i(TAG, "parcelableRoute.size()="+parcelableRoute.size());
 
 		for (int i = 0; i < parcelableRoute.size(); i++) {
-			add((RoutePoint) parcelableRoute.get(i));
+			add((CoursePoint) parcelableRoute.get(i));
 		}
 	}
 }

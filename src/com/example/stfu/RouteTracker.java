@@ -2,18 +2,18 @@ package com.example.stfu;
 
 import java.util.List;
 
-import com.example.stfu.model.RoutePoint;
+import com.example.stfu.model.CoursePoint;
 
 public class RouteTracker {
-	private List<RoutePoint> routePoints;
+	private List<CoursePoint> routePoints;
 	private int currentDestinationIndex;
 
-	public RouteTracker(List<RoutePoint> routePoints) {
+	public RouteTracker(List<CoursePoint> routePoints) {
 		this.routePoints = routePoints;
 		setCurrentDestinationIndex(0);
 	}
 	
-	public RoutePoint getCurrentDestination() {
+	public CoursePoint getCurrentDestination() {
 		return routePoints.get(getCurrentDestinationIndex());
 	}
 

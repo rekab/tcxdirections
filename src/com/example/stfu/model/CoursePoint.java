@@ -5,33 +5,33 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-public class RoutePoint extends Location implements Parcelable {
+public class CoursePoint extends Location implements Parcelable {
 
 	private String desc;
 	private String name;
 	private String provider;
 
-    public static final Parcelable.Creator<RoutePoint> CREATOR
-    	= new Parcelable.Creator<RoutePoint>() {
-		public RoutePoint createFromParcel(Parcel in) {
+    public static final Parcelable.Creator<CoursePoint> CREATOR
+    	= new Parcelable.Creator<CoursePoint>() {
+		public CoursePoint createFromParcel(Parcel in) {
 			Log.i(TAG, "createFromParcel()");
-		    return new RoutePoint(in);
+		    return new CoursePoint(in);
 		}
 		
-		public RoutePoint[] newArray(int size) {
-		    return new RoutePoint[size];
+		public CoursePoint[] newArray(int size) {
+		    return new CoursePoint[size];
 		}
 	};
 	private static final String TAG = "RoutePoint";
 
-	public RoutePoint(String provider, String name, String desc) {
+	public CoursePoint(String provider, String name, String desc) {
 		super(provider);
 		this.provider = provider;
 		setName(name);
 		setDescription(desc);
 	}
 	
-	private RoutePoint(Parcel in) {
+	private CoursePoint(Parcel in) {
 		super(in.readString());
 		Log.i(TAG, "constructing from parcel");
 		setName(in.readString());

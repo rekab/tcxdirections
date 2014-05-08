@@ -17,7 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.stfu.model.RoutePoint;
+import com.example.stfu.model.CoursePoint;
 import com.github.barcodeeye.migrated.Intents;
 import com.github.barcodeeye.scan.CaptureActivity;
 
@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        ArrayList<RoutePoint> route = getRoute();
+        ArrayList<CoursePoint> route = getRoute();
         Log.i(TAG, "opening options menu, route = " + route);
         menu.setGroupVisible(R.id.route_actions_menu_group, route != null);
         return true;
@@ -62,12 +62,12 @@ public class MainActivity extends Activity {
 	/**
 	 * @return
 	 */
-	private ArrayList<RoutePoint> getRoute() {
+	private ArrayList<CoursePoint> getRoute() {
 		Intent intentOrigin = getIntent();
 		if (intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA) == null) {
 			return null;
 		}
-        ArrayList<RoutePoint> route = intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA);
+        ArrayList<CoursePoint> route = intentOrigin.getParcelableArrayListExtra(ROUTE_EXTRA);
         Log.d(TAG, "intent = " + intentOrigin + " intent.getExtras()="+intentOrigin.getExtras()
         		+ " route=" + route);
 		return route;
@@ -265,7 +265,7 @@ public class MainActivity extends Activity {
      * @param route
      * @return
      */
-	public static Intent newIntent(Context ctx, ArrayList<RoutePoint> route) {
+	public static Intent newIntent(Context ctx, ArrayList<CoursePoint> route) {
 		Intent menuIntent = new Intent(ctx, MainActivity.class);
 		menuIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
 		        Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -18,14 +18,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.example.stfu.model.RoutePoint;
+import com.example.stfu.model.CoursePoint;
 
 import android.util.Log;
 
 
 public class GpxReader {
-	public static ArrayList<RoutePoint> getRoutePoints(File source) {
-		ArrayList<RoutePoint> points = new ArrayList<RoutePoint>();
+	public static ArrayList<CoursePoint> getRoutePoints(File source) {
+		ArrayList<CoursePoint> points = new ArrayList<CoursePoint>();
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
 		try {
@@ -64,7 +64,7 @@ public class GpxReader {
             for (int j = 0 ; j < children.getLength(); j++) {
             	Node child = children.item(j);
             	if (child.getNodeName().equals("rtept")) {
-            		RoutePoint point = getRoutePointFromNode(child);
+            		CoursePoint point = getRoutePointFromNode(child);
             		points.add(point);
             	}
             }
@@ -72,7 +72,7 @@ public class GpxReader {
         return points;
 	}
 
-	private static RoutePoint getRoutePointFromNode(Node item) {
+	private static CoursePoint getRoutePointFromNode(Node item) {
 		NodeList children = item.getChildNodes();
 
 		String name = null, desc = null;
@@ -93,14 +93,14 @@ public class GpxReader {
 			desc = "";
 		}
 		NamedNodeMap attrs = item.getAttributes();
-		RoutePoint point = new RoutePoint("test", name, desc);
+		CoursePoint point = new CoursePoint("test", name, desc);
 		point.setLatitude(Double.parseDouble(attrs.getNamedItem("lat").getTextContent()));
 		point.setLongitude(Double.parseDouble(attrs.getNamedItem("lon").getTextContent()));
 		return point;
 	}
 
-	public static ArrayList<RoutePoint> getTrackPoints(File source) {
-		ArrayList<RoutePoint> points = new ArrayList<RoutePoint>();
+	public static ArrayList<CoursePoint> getTrackPoints(File source) {
+		ArrayList<CoursePoint> points = new ArrayList<CoursePoint>();
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
 		try {
@@ -139,7 +139,7 @@ public class GpxReader {
             for (int j = 0 ; j < children.getLength(); j++) {
             	Node child = children.item(j);
             	if (child.getNodeName().equals("trkpt")) {
-            		RoutePoint point = getRoutePointFromNode(child);
+            		CoursePoint point = getRoutePointFromNode(child);
             		points.add(point);
             	}
             }

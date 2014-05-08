@@ -2,7 +2,7 @@ package com.example.stfu;
 
 import java.util.ArrayList;
 
-import com.example.stfu.model.RoutePoint;
+import com.example.stfu.model.CoursePoint;
 import com.google.android.glass.widget.CardScrollAdapter;
 import com.google.android.glass.widget.CardScrollView;
 
@@ -35,7 +35,7 @@ public class BrowseRouteActivity extends Activity {
 		Log.i(TAG, "parcelableRoute.size()="+parcelableRoute.size());
 		cards = new ArrayList<RoutePointCard>(parcelableRoute.size());
 		for (int i = 0; i < parcelableRoute.size(); i++) {
-			cards.add(new RoutePointCard((RoutePoint) parcelableRoute.get(i)));
+			cards.add(new RoutePointCard((CoursePoint) parcelableRoute.get(i)));
 		}
 		cardScrollView = new CardScrollView(this);
 		cardScrollView.setAdapter(new RoutePointCardScrollAdapter());
@@ -56,7 +56,7 @@ public class BrowseRouteActivity extends Activity {
 	}
 
 	/** Returns an intent for launching this activity. */
-	public static Intent newIntent(Context ctx, ArrayList<RoutePoint> route) {
+	public static Intent newIntent(Context ctx, ArrayList<CoursePoint> route) {
 		Intent intent = new Intent(ctx, BrowseRouteActivity.class);
 		intent.putParcelableArrayListExtra(ROUTE_EXTRA, route);
 		return intent;

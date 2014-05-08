@@ -1,6 +1,6 @@
 package com.example.stfu;
 
-import com.example.stfu.model.RoutePoint;
+import com.example.stfu.model.CoursePoint;
 import com.google.android.glass.app.Card;
 
 import android.content.Context;
@@ -17,8 +17,8 @@ import android.widget.TextView;
 public class RoutePointCard {
 	
 	private static final String TAG = "RoutePointCard";
-	private RoutePoint routePoint;
-	public RoutePointCard(RoutePoint routePoint) {
+	private CoursePoint routePoint;
+	public RoutePointCard(CoursePoint routePoint) {
 		this.routePoint = routePoint;
 	}
 	/*

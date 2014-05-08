@@ -24,7 +24,7 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
 
-import com.example.stfu.model.RoutePoint;
+import com.example.stfu.model.CoursePoint;
 import com.google.android.glass.media.Sounds;
 import com.google.android.glass.timeline.LiveCard;
 import com.google.android.glass.timeline.LiveCard.PublishMode;
@@ -50,7 +50,7 @@ public class StfuLiveCardService extends Service {
 	private LocationListener locationListener;
 	private Location latestLocation;
 	private int currentDestinationRouteIndex;
-	private ArrayList<RoutePoint> route = null;
+	private ArrayList<CoursePoint> route = null;
 	private PendingIntent proximityAlert = null;
 	protected static final boolean USE_TEST_LOCATION_PROVIDER = true; // For testing
 	private static final String TEST_FILE_LOCATION = Filesystem.getStorageDirectory() + "/2550337.gpx";
@@ -189,7 +189,7 @@ public class StfuLiveCardService extends Service {
 		audio.playSoundEffect(Sounds.SUCCESS);
 
 		// Determine if we're approaching or have arrived at the destination
-		RoutePoint dest = route.get(currentDestinationRouteIndex);
+		CoursePoint dest = route.get(currentDestinationRouteIndex);
 		if (haveArrivedAt(dest)) {
 			handleArrivedAtDestination();
 		} else {
@@ -218,7 +218,7 @@ public class StfuLiveCardService extends Service {
     	setProximityAlertForCurrentDestination(ARRIVED_AT_DEST_ALERT_RADIUS_METERS);
 	}
 
-	private boolean haveArrivedAt(RoutePoint dest) {
+	private boolean haveArrivedAt(CoursePoint dest) {
 		return latestLocation != null &&
 				latestLocation.distanceTo(dest) <= ARRIVED_AT_DEST_ALERT_RADIUS_METERS;
 	}
@@ -246,7 +246,7 @@ public class StfuLiveCardService extends Service {
 
 	private void setProximityAlertForCurrentDestination(float radiusMeters) {
 		Log.i(TAG, "setting proximity alert for current dest at " + radiusMeters + "m");
-		RoutePoint destination = route.get(currentDestinationRouteIndex);
+		CoursePoint destination = route.get(currentDestinationRouteIndex);
 		proximityAlert = PendingIntent.getService(this, 0, new Intent(PROXIMITY_ALERT_ACTION), 0);
     	locationManager.addProximityAlert(
     			destination.getLatitude(),
@@ -279,7 +279,7 @@ public class StfuLiveCardService extends Service {
     private class UpdateLiveCardRunnable implements Runnable {
 
         private boolean isStopped = false;
-        private Queue<RoutePoint> testRoutePoints = null;
+        private Queue<CoursePoint> testRoutePoints = null;
 
 
         /*
@@ -306,9 +306,9 @@ public class StfuLiveCardService extends Service {
             }
         }
 
-        public void setTestRoute(ArrayList<RoutePoint> routePoints) {
+        public void setTestRoute(ArrayList<CoursePoint> routePoints) {
         	Log.i(TAG, "adding test route with size=" + routePoints.size());
-			testRoutePoints = new LinkedList<RoutePoint>();
+			testRoutePoints = new LinkedList<CoursePoint>();
 			testRoutePoints.addAll(routePoints);
 		}
 
