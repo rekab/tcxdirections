@@ -46,7 +46,7 @@ public class TcxRoute {
 			}
 		}
 		for (TrackPoint tp : nearbyTrackPoints) {
-			// If we're headed towards this point
+			// If we're headed towards this point (within 30 degrees).
 			if (Math.abs(curLocation.bearingTo(tp) - curLocation.getBearing()) < 30) {
 				return coursePoints.indexOf(tp.getDestination());
 			}
