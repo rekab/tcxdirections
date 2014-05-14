@@ -12,8 +12,8 @@ public class TcxRoute {
 	private ArrayList<CoursePoint> coursePoints = null;
 	
 	public TcxRoute(ArrayList<TrackPoint> trackPoints, ArrayList<CoursePoint> coursePoints) {
-		this.trackPoints = trackPoints;
-		this.coursePoints = coursePoints;
+		this.setTrackPoints(trackPoints);
+		this.setCoursePoints(coursePoints);
 	}
 	
 	public int getNextCoursePointIndex(Location curLocation) {
@@ -23,7 +23,7 @@ public class TcxRoute {
 	
 	public int getNextCoursePointIndex(Location curLocation, int prevCoursePointIndex) {
 		// Verify we're not at the end already.
-		if (prevCoursePointIndex >= (coursePoints.size() - 1)) {
+		if (prevCoursePointIndex >= (getCoursePoints().size() - 1)) {
 			return prevCoursePointIndex;
 		}
 
@@ -39,7 +39,7 @@ public class TcxRoute {
 		// It's possible the tracks could overlap. Try to find tracks leading to the next
 		// sequential course point. If none, find the tracks going in the same
 		// direction we're going.
-		CoursePoint probableNextCoursePoint = coursePoints.get(probableNextCoursePointIndex);
+		CoursePoint probableNextCoursePoint = getCoursePoints().get(probableNextCoursePointIndex);
 		for (TrackPoint tp : nearbyTrackPoints) {
 			if (tp.getDestination().equals(probableNextCoursePoint)) {
 				return probableNextCoursePointIndex;
@@ -48,7 +48,7 @@ public class TcxRoute {
 		for (TrackPoint tp : nearbyTrackPoints) {
 			// If we're headed towards this point (within 30 degrees).
 			if (Math.abs(curLocation.bearingTo(tp) - curLocation.getBearing()) < 30) {
-				return coursePoints.indexOf(tp.getDestination());
+				return getCoursePoints().indexOf(tp.getDestination());
 			}
 		}
 		return 0;
@@ -61,7 +61,7 @@ public class TcxRoute {
 			return false;
 		}
 		for (TrackPoint tp : nearbyTrackPoints) {
-			if (tp.getDestination().equals(coursePoints.get(curCoursePointIndex))) {
+			if (tp.getDestination().equals(getCoursePoints().get(curCoursePointIndex))) {
 				return true;
 			}
 		}
@@ -70,7 +70,7 @@ public class TcxRoute {
 
 	private ArrayList<TrackPoint> getNearbyTrackPoints(final Location curLocation) {
 		ArrayList<TrackPoint> filtered = new ArrayList<TrackPoint>();
-		for (TrackPoint tp : trackPoints) {
+		for (TrackPoint tp : getTrackPoints()) {
 			if (curLocation.distanceTo(tp) < NEARBY_TRACK_POINT_METERS) {
 				filtered.add(tp);
 			}
@@ -82,6 +82,22 @@ public class TcxRoute {
 			}
 		});
 		return filtered;
+	}
+
+	public ArrayList<TrackPoint> getTrackPoints() {
+		return trackPoints;
+	}
+
+	public void setTrackPoints(ArrayList<TrackPoint> trackPoints) {
+		this.trackPoints = trackPoints;
+	}
+
+	public ArrayList<CoursePoint> getCoursePoints() {
+		return coursePoints;
+	}
+
+	public void setCoursePoints(ArrayList<CoursePoint> coursePoints) {
+		this.coursePoints = coursePoints;
 	}
 
 }

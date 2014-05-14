@@ -4,6 +4,7 @@ import android.location.Location;
 
 public class TrackPoint extends Location {
 
+	private Double distance;
 	private CoursePoint destination;
 
 	public TrackPoint(String provider, CoursePoint destination) {
@@ -17,6 +18,14 @@ public class TrackPoint extends Location {
 
 	public void setDestination(CoursePoint destination) {
 		this.destination = destination;
+	}
+
+	public Double getDistance() {
+		return distance;
+	}
+
+	public void setDistance(Double distance) {
+		this.distance = distance;
 	}
 
 }
