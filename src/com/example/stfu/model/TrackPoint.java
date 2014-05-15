@@ -12,6 +12,12 @@ public class TrackPoint extends Location {
 		this.setDestination(destination);
 	}
 
+	public TrackPoint(String provider, double lat, double lng) {
+		super(provider);
+		setLatitude(lat);
+		setLongitude(lng);
+	}
+
 	public CoursePoint getDestination() {
 		return destination;
 	}

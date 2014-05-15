@@ -39,6 +39,15 @@ public class CoursePoint extends Location implements Parcelable {
 		setLatitude(in.readDouble());
 		setLongitude(in.readDouble());
 	}
+	
+	public CoursePoint(String provider, String name, String desc, double lat, double lng) {
+		super(provider);
+		this.provider = provider;
+		setName(name);
+		setDescription(desc);
+		setLatitude(lat);
+		setLongitude(lng);
+	}
 
 
 	public String getDescription() {

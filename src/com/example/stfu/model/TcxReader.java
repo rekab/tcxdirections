@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -21,6 +22,7 @@ public class TcxReader {
 	private static final String TAG = "TcxReader";
 	// 2014-05-08T04:21:41Z
 	private static final String TCX_DATE_FORMAT = "yyy-mm-dd'T'HH:mm:ss'Z'";
+	private static final float TRACK_TO_COURSE_DISTANCE_METERS = 10;
 
 	public static TcxRoute getTcxRoute(File source) {
 		FileInputStream input;
@@ -86,13 +88,42 @@ public class TcxReader {
 				skip(parser);
 			}
 		}
-		// TODO TODO
-		// "Zip" the track points to the course points: for each course point, find
-		// all the track points that lead to that course point. A track point
-		// is assumed to be leading away from a course point once the distance
-		// is small and bearing to the course point changes by a significant amount.
+		zipTrackPointsToCoursePoints(trackPoints, coursePoints);
 
 		return new TcxRoute(trackPoints, coursePoints);
+	}
+
+	/**
+	 * "Zip" the track points to the course points: for each course point, find
+	 * all the track points that lead to that course point. A track point
+	 * is assumed to be leading away from a course point once the distance
+	 * is small and bearing to the course point changes by a significant amount.
+	 *
+	 * @param trackPoints
+	 * @param coursePoints
+	 */
+	public static void zipTrackPointsToCoursePoints(
+			ArrayList<TrackPoint> trackPoints,
+			ArrayList<CoursePoint> coursePoints) {
+		// We assume the first CoursePoint is the start, and skip it
+		int cpIndex = 1, tpIndex = 0;
+		for (; cpIndex < coursePoints.size() && tpIndex < trackPoints.size(); cpIndex++)
+		{
+			CoursePoint cp = coursePoints.get(cpIndex);
+			TrackPoint tp = null;
+			do {
+				tp = trackPoints.get(tpIndex);
+				tp.setDestination(cp);
+				tpIndex++;
+			} while (tpIndex < trackPoints.size() &&
+					 tp.distanceTo(cp) > TRACK_TO_COURSE_DISTANCE_METERS);
+		}
+		if (cpIndex < coursePoints.size()) {
+			Log.w(TAG, "Did not process all course points, stopped at " + cpIndex);
+		}
+		if (tpIndex < trackPoints.size()) {
+			Log.w(TAG, "Did not process all track points, stopped at " + tpIndex);
+		}
 	}
 
 	private static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
