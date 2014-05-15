@@ -8,8 +8,10 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+
 import android.annotation.SuppressLint;
 import android.util.Log;
 import android.util.Pair;
@@ -84,6 +86,7 @@ public class TcxReader {
 				skip(parser);
 			}
 		}
+		// TODO TODO
 		// "Zip" the track points to the course points: for each course point, find
 		// all the track points that lead to that course point. A track point
 		// is assumed to be leading away from a course point once the distance
@@ -174,6 +177,7 @@ public class TcxReader {
 		return new Pair<Double, Double>(lat, lng);
 	}
 
+
 	@SuppressLint("SimpleDateFormat")  // we don't care about date locales, we're using longs
 	private static Long readTime(XmlPullParser parser) throws XmlPullParserException, IOException, ParseException {
 		Long ret = null;
@@ -196,8 +200,43 @@ public class TcxReader {
 		return ret;
 	}
 
+	private static String readTextToString(XmlPullParser parser) throws NumberFormatException, XmlPullParserException, IOException {
+		String ret = null;
+		if (parser.next() == XmlPullParser.TEXT) {
+			ret = parser.getText();
+			parser.nextTag();
+		}
+		return ret;
+	}
+
 	private static CoursePoint readCoursePoint(XmlPullParser parser) throws XmlPullParserException, IOException {
-		// TODO Auto-generated method stub
+		Pair<Double, Double> latLong = null;
+		String name = null;
+		String desc = null;
+
+		parser.require(XmlPullParser.START_TAG, null, "CoursePoint");
+		while (parser.next() != XmlPullParser.END_TAG) {
+			if (parser.getEventType() != XmlPullParser.START_TAG) {
+				continue;
+			}
+			if (parser.getName().equals("Position")) {
+				latLong = readPosition(parser);
+			} else if (parser.getName().equals("Notes")) {
+				desc = readTextToString(parser);
+			} else if (parser.getName().equals("Name")) {
+				name = readTextToString(parser);
+			} else {
+				skip(parser);
+			}
+		}
+		parser.require(XmlPullParser.END_TAG, null, "CoursePoint");
+		if (latLong != null && name != null && desc != null) {
+			CoursePoint cp = new CoursePoint(TAG, name, desc);
+			cp.setLatitude(latLong.first);
+			cp.setLongitude(latLong.second);
+			return cp;
+		}
+		Log.e(TAG, "Failed to read all tags of CoursePoint");
 		return null;
 	}
 }
