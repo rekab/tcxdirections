@@ -51,6 +51,7 @@ public class TcxRoute {
 				return getCoursePoints().indexOf(tp.getDestination());
 			}
 		}
+		// TODO: should raise an exception instead
 		return 0;
 	}
 	
@@ -65,7 +66,7 @@ public class TcxRoute {
 				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	private ArrayList<TrackPoint> getNearbyTrackPoints(final Location curLocation) {

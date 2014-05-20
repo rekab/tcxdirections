@@ -74,5 +74,10 @@ public class CoursePoint extends Location implements Parcelable {
 		parcel.writeDouble(getLatitude());
 		parcel.writeDouble(getLongitude());
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString() + " desc=" + getDescription();
+	}
 
 }

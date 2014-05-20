@@ -40,7 +40,7 @@ public class StfuLiveCardService extends Service {
 	private static final String TAG = "StfuLiveCardService";
 	public static final long DELAY_MILLIS = 2000;
 	protected static final String FILE_PATH = "file_path";
-	public static final String DISPLAY_GPX_ACTION = "display_gpx";
+	public static final String DISPLAY_ROUTE_FILE_ACTION = "display_file";
 	private static final String ROUTE_INDEX = "route_index";
 	private static final String PICK_DESTINATION_CARD_ACTION = "pick_card";
 	private static final float APPROACHING_DEST_ALERT_RADIUS_METERS = 100;
@@ -104,8 +104,14 @@ public class StfuLiveCardService extends Service {
 				public void onLocationChanged(Location location) {
 					latestLocation = location;
 					Log.i(TAG, "got new location: " + location);
+					// TODO:
+					// Check if we're still on the route, if not, try to find
+					// if (!tcxRoute.isOnCourse(location, currentDestinationRouteIndex)) {
+					//     currentDestinationRouteIndex = tcxRoute.getNextCoursePointIndex(location, currentDestinationRouteIndex);
+					//     setDestination(tcxRoute.get)
+
 					// Because Glass doesn't have an emulator, and because proximity
-					// alerts can't choose a provider, we have to fake it here.
+					// alerts can't specify a test provider, we have to fake it here.
 					if (USE_TEST_LOCATION_PROVIDER && currentDestinationRouteIndex < route.size()) {
 						Location currentDest = route.get(currentDestinationRouteIndex);
 						if (latestLocation.distanceTo(currentDest) < APPROACHING_DEST_ALERT_RADIUS_METERS) {
@@ -146,7 +152,7 @@ public class StfuLiveCardService extends Service {
             setMenuPendingIntent();
     		liveCard.setViews(liveCardView);
             liveCard.publish(PublishMode.REVEAL);
-        } else if (intent.getAction().equals(DISPLAY_GPX_ACTION)) {
+        } else if (intent.getAction().equals(DISPLAY_ROUTE_FILE_ACTION)) {
         	if (intent.hasExtra(FILE_PATH)) {
         		File gpxFile = new File(intent.getStringExtra(FILE_PATH));
         		route = GpxReader.getRoutePoints(gpxFile);
@@ -335,7 +341,7 @@ public class StfuLiveCardService extends Service {
 	public static Intent newDisplayRouteIntent(Context ctx,
 			String filePath, int index) {
 		Intent intent = new Intent(ctx, StfuLiveCardService.class);
-		intent.setAction(DISPLAY_GPX_ACTION);
+		intent.setAction(DISPLAY_ROUTE_FILE_ACTION);
 		intent.putExtra(FILE_PATH, filePath);
 		intent.putExtra(ROUTE_INDEX, index);
 		return intent;

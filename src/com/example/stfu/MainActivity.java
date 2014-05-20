@@ -129,7 +129,7 @@ public class MainActivity extends Activity {
                 NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
                 if (networkInfo != null && networkInfo.isConnected()) {
                     // TODO: display download started
-                    new DownloadGpxTask().execute(uriString);
+                    new DownloadFileTask().execute(uriString);
                 } else {
                     Log.e(TAG, "no connection");
                     // TODO: error display
@@ -140,7 +140,7 @@ public class MainActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 String filePath = data.getStringExtra(FileBrowserActivity.FILE_RESULT);
                 Log.i(TAG, "will open " + filePath);
-                displayGpx(filePath, 0);
+                displayRouteFile(filePath, 0);
             }
         } else if (requestCode == PICK_DESTINATION_ACTION) {
         	if (resultCode == RESULT_OK) {
@@ -157,7 +157,7 @@ public class MainActivity extends Activity {
         finish();
     }
 
-    private void displayGpx(String filePath, int index) {
+    private void displayRouteFile(String filePath, int index) {
         Log.i(TAG, "Launching intent for " + filePath);
         Intent intent = StfuLiveCardService.newDisplayRouteIntent(this, filePath, index);
 
@@ -174,7 +174,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    public class DownloadGpxTask extends android.os.AsyncTask<String, Void, String> {
+    public class DownloadFileTask extends android.os.AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... urls) {
@@ -198,7 +198,7 @@ public class MainActivity extends Activity {
             } else {
                 Log.i(TAG, "Downloaded " + filePath);
                 // launch intent for the service to pick up
-                displayGpx(filePath, 0);
+                displayRouteFile(filePath, 0);
             }
         }
 
