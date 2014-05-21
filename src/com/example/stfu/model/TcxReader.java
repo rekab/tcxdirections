@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -110,19 +109,26 @@ public class TcxReader {
 		for (; cpIndex < coursePoints.size() && tpIndex < trackPoints.size(); cpIndex++)
 		{
 			CoursePoint cp = coursePoints.get(cpIndex);
-			TrackPoint tp = null;
-			do {
+			TrackPoint tp = trackPoints.get(tpIndex);
+			while (tpIndex < trackPoints.size()) {
 				tp = trackPoints.get(tpIndex);
+				if (tp.distanceTo(cp) < TRACK_TO_COURSE_DISTANCE_METERS) {
+					break;
+				}
 				tp.setDestination(cp);
 				tpIndex++;
-			} while (tpIndex < trackPoints.size() &&
-					 tp.distanceTo(cp) > TRACK_TO_COURSE_DISTANCE_METERS);
+			}
 		}
 		if (cpIndex < coursePoints.size()) {
 			Log.w(TAG, "Did not process all course points, stopped at " + cpIndex);
 		}
 		if (tpIndex < trackPoints.size()) {
-			Log.w(TAG, "Did not process all track points, stopped at " + tpIndex);
+			// Set all remaining trackpoints' destinations to the last course point
+			CoursePoint cp = coursePoints.get(coursePoints.size() - 1);
+			while (tpIndex < trackPoints.size()) {
+				trackPoints.get(tpIndex).setDestination(cp);
+				tpIndex++;
+			}
 		}
 	}
 
