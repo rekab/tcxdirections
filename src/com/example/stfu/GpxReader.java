@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,7 +100,13 @@ public class GpxReader {
 		return point;
 	}
 
-	public static ArrayList<CoursePoint> getTrackPoints(File source) {
+	public static ArrayList<CoursePoint> getTrackPoints(File source) throws FileNotFoundException {
+		FileInputStream input;
+		input = new FileInputStream(source);
+		return getTrackPoints(input);
+	}
+		
+	public static ArrayList<CoursePoint> getTrackPoints(InputStream input) {
 		ArrayList<CoursePoint> points = new ArrayList<CoursePoint>();
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
@@ -110,15 +117,7 @@ public class GpxReader {
 			e2.printStackTrace();
 			return null;
 		}
-		FileInputStream input;
-		try {
-			input = new FileInputStream(source);
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			return null;
-		}
-        Document dom;
+		Document dom;
 		try {
 			dom = builder.parse(input);
 		} catch (SAXException e) {

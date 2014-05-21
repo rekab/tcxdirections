@@ -1,6 +1,7 @@
 package com.example.stfu;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -130,7 +131,12 @@ public class StfuLiveCardService extends Service {
 		    locationManager.requestLocationUpdates(TEST_PROVIDER_NAME, 0, 0, locationListener);*/
 		    File source = new File(TEST_FILE_LOCATION);
 		    Log.i(TAG, "Loading " + source.getAbsolutePath());
-			updateRunnable.setTestRoute(GpxReader.getTrackPoints(source));
+			try {
+				updateRunnable.setTestRoute(GpxReader.getTrackPoints(source));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else {
 			List<String> providers = locationManager.getProviders(
 			        criteria, true /* enabledOnly */);

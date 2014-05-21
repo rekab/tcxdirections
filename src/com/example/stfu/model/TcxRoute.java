@@ -5,9 +5,11 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import android.location.Location;
+import android.util.Log;
 
 public class TcxRoute {
-	private static final int NEARBY_TRACK_POINT_METERS = 100;
+	private static final int NEARBY_TRACK_POINT_METERS = 50;
+	private static final String TAG = "TcxRoute";
 	private ArrayList<TrackPoint> trackPoints = null;
 	private ArrayList<CoursePoint> coursePoints = null;
 	
@@ -28,10 +30,13 @@ public class TcxRoute {
 		}
 
 		int probableNextCoursePointIndex = prevCoursePointIndex + 1;
+		Log.d(TAG, "curLocation=" + curLocation);
+		Log.d(TAG, "probableNextCoursePointIndex=" + probableNextCoursePointIndex);
 
-		// Find the nearest track points within 100m.
+		// Find the nearest track points.
 		ArrayList<TrackPoint> nearbyTrackPoints = getNearbyTrackPoints(curLocation);
-		if (nearbyTrackPoints == null || nearbyTrackPoints.size() == 0) {	
+		if (nearbyTrackPoints == null || nearbyTrackPoints.size() == 0) {
+			Log.d(TAG, "no nearby track points, we're off course");
 			// If there aren't any we're off course, just assume we're going to the next.
 			return probableNextCoursePointIndex;
 		}
@@ -42,13 +47,20 @@ public class TcxRoute {
 		CoursePoint probableNextCoursePoint = getCoursePoints().get(probableNextCoursePointIndex);
 		for (TrackPoint tp : nearbyTrackPoints) {
 			if (tp.getDestination().equals(probableNextCoursePoint)) {
+				Log.d(TAG, "found course point with equal probableNextCoursePoint");
 				return probableNextCoursePointIndex;
+			} else {
+				Log.d(TAG, "tp=" +  tp + " dest=" + tp.getDestination() + " != probable:" +
+						probableNextCoursePoint);
 			}
 		}
 		for (TrackPoint tp : nearbyTrackPoints) {
+			Log.i(TAG, "attempting to find track points we're headed towards");
 			// If we're headed towards this point (within 30 degrees).
 			if (Math.abs(curLocation.bearingTo(tp) - curLocation.getBearing()) < 30) {
-				return getCoursePoints().indexOf(tp.getDestination());
+				int index = getCoursePoints().indexOf(tp.getDestination());
+				Log.i(TAG, "found: index=" + index + "loc=" + tp.getDestination());
+				return index;
 			}
 		}
 		// TODO: should raise an exception instead
@@ -56,7 +68,7 @@ public class TcxRoute {
 	}
 	
 	public boolean isOnCourse(Location curLocation, int curCoursePointIndex) {
-		// Check if we can find a track point within 100m with the same course point.
+		// Check if we can find a nearby track point with the same course point.
 		ArrayList<TrackPoint> nearbyTrackPoints = getNearbyTrackPoints(curLocation);
 		if (nearbyTrackPoints == null || nearbyTrackPoints.size() == 0) {
 			return false;
