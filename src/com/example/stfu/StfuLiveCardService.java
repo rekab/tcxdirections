@@ -53,7 +53,7 @@ public class StfuLiveCardService extends Service {
 	private int currentDestinationRouteIndex;
 	private ArrayList<CoursePoint> route = null;
 	private PendingIntent proximityAlert = null;
-	protected static final boolean USE_TEST_LOCATION_PROVIDER = true; // For testing
+	protected static final boolean FAKE_LOCATION_UPDATES = true; // For testing
 	private static final String TEST_FILE_LOCATION = Filesystem.getStorageDirectory() + "/2550337.gpx";
 	private static final long SCREEN_TIMEOUT_MS = 45 * 1000;
 	private PowerManager pm;
@@ -113,7 +113,7 @@ public class StfuLiveCardService extends Service {
 
 					// Because Glass doesn't have an emulator, and because proximity
 					// alerts can't specify a test provider, we have to fake it here.
-					if (USE_TEST_LOCATION_PROVIDER && currentDestinationRouteIndex < route.size()) {
+					if (FAKE_LOCATION_UPDATES && currentDestinationRouteIndex < route.size()) {
 						Location currentDest = route.get(currentDestinationRouteIndex);
 						if (latestLocation.distanceTo(currentDest) < APPROACHING_DEST_ALERT_RADIUS_METERS) {
 							handleProximityAlert();
@@ -124,7 +124,7 @@ public class StfuLiveCardService extends Service {
         }
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		if (USE_TEST_LOCATION_PROVIDER) {
+		if (FAKE_LOCATION_UPDATES) {
 			/*locationManager.addTestProvider(TEST_PROVIDER_NAME, false, false, false, false,
 					true, true, true, Criteria.POWER_LOW, Criteria.ACCURACY_FINE);
 			locationManager.setTestProviderEnabled(TEST_PROVIDER_NAME, true);
@@ -304,7 +304,7 @@ public class StfuLiveCardService extends Service {
          */
         public void run(){
             if (!isStopped()){
-            	if (USE_TEST_LOCATION_PROVIDER &&
+            	if (FAKE_LOCATION_UPDATES &&
             			testRoutePoints != null &&
             			testRoutePoints.size() > 0) {
             		Location location = testRoutePoints.remove();
