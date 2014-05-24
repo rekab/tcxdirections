@@ -3,6 +3,7 @@ package com.example.stfu;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -21,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
@@ -52,6 +54,8 @@ public class StfuLiveCardService extends Service {
 	private LocationManager locationManager;
 	private LocationListener locationListener;
 	private Location latestLocation;
+	private Time t;
+	private long lastLocationUpdate = 0;
 	private int currentDestinationRouteIndex;
 	//private ArrayList<CoursePoint> route = null;
 	private PendingIntent proximityAlert = null;
@@ -91,6 +95,7 @@ public class StfuLiveCardService extends Service {
 				PowerManager.ON_AFTER_RELEASE,
 				TAG);
 		audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		t = new Time();
 
         if (locationListener == null) {
 			locationListener = new LocationListener() {
@@ -110,13 +115,29 @@ public class StfuLiveCardService extends Service {
 				@Override
 				public void onLocationChanged(Location location) {
 					latestLocation = location;
+				    t.setToNow();
+					long curTime = t.toMillis(true);
+					if ((curTime - lastLocationUpdate) < (1 * 1000)) {
+						Log.i(TAG, "skipping off course check");
+						return;
+					}
+					lastLocationUpdate = curTime;
+					
 					Log.i(TAG, "got new location: " + location);
+					if (tcxRoute == null) {
+						// TODO: to save power, should only request location updates when a route
+						// is loaded.
+						Log.i(TAG, "no route loaded");
+						return;
+					}
 					// Check if we're still on the route, if not, try to find
 					if (tcxRoute.isOnCourse(location, currentDestinationRouteIndex)) {
 						Log.i(TAG, "on course, index=" + currentDestinationRouteIndex + "=" + tcxRoute.getCoursePoints().get(currentDestinationRouteIndex));
 					} else {
 						Log.w(TAG, "off course, updating destination from index=" + currentDestinationRouteIndex);
-					    currentDestinationRouteIndex = tcxRoute.getNextCoursePointIndex(
+
+						
+						currentDestinationRouteIndex = tcxRoute.getNextCoursePointIndex(
 					    		location, currentDestinationRouteIndex);
 						Log.i(TAG, "updated index=" + currentDestinationRouteIndex);
 					    setDestination(currentDestinationRouteIndex);

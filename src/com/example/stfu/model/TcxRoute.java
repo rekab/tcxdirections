@@ -38,8 +38,9 @@ public class TcxRoute {
 		ArrayList<TrackPoint> nearbyTrackPoints = getNearbyTrackPoints(curLocation);
 		if (nearbyTrackPoints == null || nearbyTrackPoints.size() == 0) {
 			Log.d(TAG, "no nearby track points, we're off course");
-			// If there aren't any we're off course, just assume we're going to the next.
-			return probableNextCoursePointIndex;
+			//// If there aren't any we're off course, just assume we're going to the next.
+			//return probableNextCoursePointIndex;
+			return prevCoursePointIndex;
 		}
 
 		// It's possible the tracks could overlap. Try to find tracks leading to the next
@@ -55,6 +56,9 @@ public class TcxRoute {
 						probableNextCoursePoint);
 			}
 		}
+		Log.i(TAG, "giving up");
+		return prevCoursePointIndex;
+		/*
 		for (TrackPoint tp : nearbyTrackPoints) {
 			Log.i(TAG, "attempting to find track points we're headed towards");
 			// If we're headed towards this point (within 30 degrees).
@@ -65,7 +69,7 @@ public class TcxRoute {
 			}
 		}
 		// TODO: should raise an exception instead
-		return 0;
+		return 0;*/
 	}
 	
 	public boolean isOnCourse(Location curLocation, int curCoursePointIndex) {

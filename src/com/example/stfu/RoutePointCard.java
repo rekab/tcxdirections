@@ -17,9 +17,9 @@ import android.widget.TextView;
 public class RoutePointCard {
 	
 	private static final String TAG = "RoutePointCard";
-	private CoursePoint routePoint;
+	private CoursePoint coursePoint;
 	public RoutePointCard(CoursePoint routePoint) {
-		this.routePoint = routePoint;
+		this.coursePoint = routePoint;
 	}
 	/*
 		setText(routePoint.getDescription());
@@ -38,8 +38,8 @@ public class RoutePointCard {
 		} */
     public RemoteViews getRemoteViews(String packageName) {
     	RemoteViews view = new RemoteViews(packageName, R.layout.route_point_card);
-    	view.setTextViewText(R.id.route_point_description, routePoint.getDescription());
-		if (routePoint.getName() != null) {
+    	view.setTextViewText(R.id.route_point_description, coursePoint.getDescription());
+		if (coursePoint.getName() != null) {
 	    	Integer id = getImageIdForRoutePoint();
 	    	if (id != null) {
 	    		view.setImageViewResource(R.id.route_point_icon, id);
@@ -53,7 +53,7 @@ public class RoutePointCard {
     		LayoutInflater inflater = LayoutInflater.from(ctx);
     		convertView = inflater.inflate(R.layout.route_point_card, parent);
     	}
-    	((TextView) convertView.findViewById(R.id.route_point_description)).setText(routePoint.getDescription());
+    	((TextView) convertView.findViewById(R.id.route_point_description)).setText(coursePoint.getDescription());
     	Integer id = getImageIdForRoutePoint();
     	if (id != null) {
     		((ImageView) convertView.findViewById(R.id.route_point_icon)).setImageResource(id);
@@ -62,23 +62,23 @@ public class RoutePointCard {
     }
 
 	private Integer getImageIdForRoutePoint() {
-		if (routePoint.getName() == null) {
+		if (coursePoint.getPointType() == null) {
 			return null;
 		}
-		if (routePoint.getName().equalsIgnoreCase("right")) {
+		if (coursePoint.getPointType().equalsIgnoreCase("right")) {
 			return R.drawable.right_arrow;
-		} else if (routePoint.getName().equalsIgnoreCase("left")) {
+		} else if (coursePoint.getPointType().equalsIgnoreCase("left")) {
 			return R.drawable.left_arrow;
-		} else if (routePoint.getName().equalsIgnoreCase("straight")) {
+		} else if (coursePoint.getPointType().equalsIgnoreCase("straight")) {
 			return R.drawable.straight_arrow;
-		} else if (routePoint.getName().equalsIgnoreCase("water")) {
+		} else if (coursePoint.getPointType().equalsIgnoreCase("water")) {
 			return R.drawable.water;
 		}
 		// TODO:  "Generic", "Summit", "Valley", "Water", "Food", "Danger", 
 		// "Left", "Right", "Straight", "First Aid", "4th Category",
 		// "3rd Category", "2nd Category", "1st Category", "Hors Category",
 		// "Sprint"
-		Log.e(TAG, "unknown name:" + routePoint.getName());
+		Log.e(TAG, "unknown point type:" + coursePoint.getPointType());
 		return null;
 	}
 

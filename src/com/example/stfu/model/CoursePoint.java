@@ -23,10 +23,12 @@ public class CoursePoint extends Location implements Parcelable {
 		}
 	};
 	private static final String TAG = "RoutePoint";
+	private String pointType;
 
-	public CoursePoint(String provider, String name, String desc) {
+	public CoursePoint(String provider, String name, String desc, String type) {
 		super(provider);
 		this.provider = provider;
+		this.setPointType(type);
 		setName(name);
 		setDescription(desc);
 	}
@@ -36,15 +38,17 @@ public class CoursePoint extends Location implements Parcelable {
 		Log.i(TAG, "constructing from parcel");
 		setName(in.readString());
 		setDescription(in.readString());
+		setPointType(in.readString());
 		setLatitude(in.readDouble());
 		setLongitude(in.readDouble());
 	}
 	
-	public CoursePoint(String provider, String name, String desc, double lat, double lng) {
+	public CoursePoint(String provider, String name, String desc, String type, double lat, double lng) {
 		super(provider);
 		this.provider = provider;
 		setName(name);
 		setDescription(desc);
+		setPointType(type);
 		setLatitude(lat);
 		setLongitude(lng);
 	}
@@ -71,6 +75,7 @@ public class CoursePoint extends Location implements Parcelable {
 		parcel.writeString(provider);
 		parcel.writeString(name);
 		parcel.writeString(desc);
+		parcel.writeString(pointType);
 		parcel.writeDouble(getLatitude());
 		parcel.writeDouble(getLongitude());
 	}
@@ -78,6 +83,14 @@ public class CoursePoint extends Location implements Parcelable {
 	@Override
 	public String toString() {
 		return super.toString() + " desc=" + getDescription();
+	}
+
+	public String getPointType() {
+		return pointType;
+	}
+
+	public void setPointType(String type) {
+		this.pointType = type;
 	}
 
 }

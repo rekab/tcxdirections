@@ -250,6 +250,7 @@ public class TcxReader {
 		Pair<Double, Double> latLong = null;
 		String name = null;
 		String desc = null;
+		String type = null;
 
 		parser.require(XmlPullParser.START_TAG, null, "CoursePoint");
 		while (parser.next() != XmlPullParser.END_TAG) {
@@ -262,13 +263,15 @@ public class TcxReader {
 				desc = readTextToString(parser);
 			} else if (parser.getName().equals("Name")) {
 				name = readTextToString(parser);
+			} else if (parser.getName().equals("PointType")) {
+				type = readTextToString(parser);
 			} else {
 				skip(parser);
 			}
 		}
 		parser.require(XmlPullParser.END_TAG, null, "CoursePoint");
-		if (latLong != null && name != null && desc != null) {
-			CoursePoint cp = new CoursePoint(TAG, name, desc);
+		if (latLong != null && name != null && desc != null && type != null) {
+			CoursePoint cp = new CoursePoint(TAG, name, desc, type);
 			cp.setLatitude(latLong.first);
 			cp.setLongitude(latLong.second);
 			return cp;

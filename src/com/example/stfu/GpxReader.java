@@ -94,7 +94,7 @@ public class GpxReader {
 			desc = "";
 		}
 		NamedNodeMap attrs = item.getAttributes();
-		CoursePoint point = new CoursePoint("test", name, desc);
+		CoursePoint point = new CoursePoint("test", name, desc, "test");
 		point.setLatitude(Double.parseDouble(attrs.getNamedItem("lat").getTextContent()));
 		point.setLongitude(Double.parseDouble(attrs.getNamedItem("lon").getTextContent()));
 		return point;
