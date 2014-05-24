@@ -52,7 +52,7 @@ public class FileBrowserActivity extends Activity {
     private void createCards(File storageDirectory) {
         cards = new ArrayList<GpxFileCard>();
         for (File file : storageDirectory.listFiles()) {
-            if (file.isFile() && file.getName().endsWith(".gpx")) {
+            if (file.isFile() && file.getName().endsWith(".tcx")) {
                 GpxFileCard card = new GpxFileCard(this);
                 // TODO: gpx parser should extract the title
                 Log.i(TAG, "creating card for " + file.getName());

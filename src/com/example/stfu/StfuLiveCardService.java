@@ -26,6 +26,8 @@ import android.view.WindowManager;
 import android.widget.RemoteViews;
 
 import com.example.stfu.model.CoursePoint;
+import com.example.stfu.model.TcxReader;
+import com.example.stfu.model.TcxRoute;
 import com.google.android.glass.media.Sounds;
 import com.google.android.glass.timeline.LiveCard;
 import com.google.android.glass.timeline.LiveCard.PublishMode;
@@ -51,14 +53,17 @@ public class StfuLiveCardService extends Service {
 	private LocationListener locationListener;
 	private Location latestLocation;
 	private int currentDestinationRouteIndex;
-	private ArrayList<CoursePoint> route = null;
+	//private ArrayList<CoursePoint> route = null;
 	private PendingIntent proximityAlert = null;
-	protected static final boolean FAKE_LOCATION_UPDATES = true; // For testing
+	protected static final boolean FAKE_LOCATION_UPDATES = false; // For testing
+	// Test route: http://ridewithgps.com/routes/4051817
+	// Test track: http://ridewithgps.com/trips/2550337
 	private static final String TEST_FILE_LOCATION = Filesystem.getStorageDirectory() + "/2550337.gpx";
-	private static final long SCREEN_TIMEOUT_MS = 45 * 1000;
+	private static final long SCREEN_TIMEOUT_MS = 30 * 1000;
 	private PowerManager pm;
 	private PowerManager.WakeLock wl;
 	private AudioManager audio;
+	private TcxRoute tcxRoute;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -89,6 +94,7 @@ public class StfuLiveCardService extends Service {
 
         if (locationListener == null) {
 			locationListener = new LocationListener() {
+
 				@Override
 				public void onStatusChanged(String provider, int status, Bundle extras) {
 				}
@@ -105,16 +111,21 @@ public class StfuLiveCardService extends Service {
 				public void onLocationChanged(Location location) {
 					latestLocation = location;
 					Log.i(TAG, "got new location: " + location);
-					// TODO:
 					// Check if we're still on the route, if not, try to find
-					// if (!tcxRoute.isOnCourse(location, currentDestinationRouteIndex)) {
-					//     currentDestinationRouteIndex = tcxRoute.getNextCoursePointIndex(location, currentDestinationRouteIndex);
-					//     setDestination(tcxRoute.get)
+					if (tcxRoute.isOnCourse(location, currentDestinationRouteIndex)) {
+						Log.i(TAG, "on course, index=" + currentDestinationRouteIndex + "=" + tcxRoute.getCoursePoints().get(currentDestinationRouteIndex));
+					} else {
+						Log.w(TAG, "off course, updating destination from index=" + currentDestinationRouteIndex);
+					    currentDestinationRouteIndex = tcxRoute.getNextCoursePointIndex(
+					    		location, currentDestinationRouteIndex);
+						Log.i(TAG, "updated index=" + currentDestinationRouteIndex);
+					    setDestination(currentDestinationRouteIndex);
+					}
 
 					// Because Glass doesn't have an emulator, and because proximity
 					// alerts can't specify a test provider, we have to fake it here.
-					if (FAKE_LOCATION_UPDATES && currentDestinationRouteIndex < route.size()) {
-						Location currentDest = route.get(currentDestinationRouteIndex);
+					if (FAKE_LOCATION_UPDATES && currentDestinationRouteIndex < tcxRoute.getCoursePoints().size()) {
+						Location currentDest = tcxRoute.getCoursePoints().get(currentDestinationRouteIndex);
 						if (latestLocation.distanceTo(currentDest) < APPROACHING_DEST_ALERT_RADIUS_METERS) {
 							handleProximityAlert();
 						}
@@ -160,13 +171,15 @@ public class StfuLiveCardService extends Service {
             liveCard.publish(PublishMode.REVEAL);
         } else if (intent.getAction().equals(DISPLAY_ROUTE_FILE_ACTION)) {
         	if (intent.hasExtra(FILE_PATH)) {
-        		File gpxFile = new File(intent.getStringExtra(FILE_PATH));
-        		route = GpxReader.getRoutePoints(gpxFile);
-        		if (route.size() == 0) {
+        		File tcxFile = new File(intent.getStringExtra(FILE_PATH));
+        		tcxRoute = TcxReader.getTcxRoute(tcxFile);
+        		//route = GpxReader.getRoutePoints(gpxFile);
+        		//if (route.size() == 0) {
+        		if (tcxRoute == null || tcxRoute.getCoursePoints().size() == 0) {
         			Log.e(TAG, "Route is empty!");
         			// TODO: display an error
         		} else {
-	        		Log.i(TAG, "loaded route " + route);
+	        		Log.i(TAG, "loaded route " + tcxRoute);
 	
 	        		// Update the menu pending intent to reflect that we've got a route.
 	        		setMenuPendingIntent();
@@ -177,7 +190,7 @@ public class StfuLiveCardService extends Service {
         		// Kick off the updates
         		handler.postDelayed(updateRunnable, DELAY_MILLIS);
         	} else {
-        		Log.e(TAG, "Got a DISPLAY_GPX_ACTION action with no file?");
+        		Log.e(TAG, "Got a DISPLAY_ROUTE_FILE_ACTION action with no file?");
         	}
         } else if (intent.getAction().equals(PICK_DESTINATION_CARD_ACTION)) {
     		int routeIndex = intent.getIntExtra(ROUTE_INDEX, 0);
@@ -201,7 +214,7 @@ public class StfuLiveCardService extends Service {
 		audio.playSoundEffect(Sounds.SUCCESS);
 
 		// Determine if we're approaching or have arrived at the destination
-		CoursePoint dest = route.get(currentDestinationRouteIndex);
+		CoursePoint dest = tcxRoute.getCoursePoints().get(currentDestinationRouteIndex);
 		if (haveArrivedAt(dest)) {
 			handleArrivedAtDestination();
 		} else {
@@ -212,7 +225,7 @@ public class StfuLiveCardService extends Service {
 	private void handleArrivedAtDestination() {
 		Log.i(TAG, "have arrived at current destination");
 		int nextDest = currentDestinationRouteIndex + 1;
-		if (nextDest < route.size()) {
+		if (nextDest < tcxRoute.getCoursePoints().size()) {
 			Log.i(TAG, "advancing destination");
 			setDestination(nextDest);
 		} else {
@@ -240,7 +253,7 @@ public class StfuLiveCardService extends Service {
 	 * @param routeIndex
 	 */
 	private void setDestination(int routeIndex) {
-    	if (route == null) {
+    	if (tcxRoute == null) {
     		Log.e(TAG, "wtf can't pick a destination without a route!");
     		return;
     	}
@@ -251,14 +264,15 @@ public class StfuLiveCardService extends Service {
     	currentDestinationRouteIndex = routeIndex;
     	setProximityAlertForCurrentDestination(APPROACHING_DEST_ALERT_RADIUS_METERS);
 
-    	liveCardView = new RoutePointCard(route.get(routeIndex)).getRemoteViews(
-				getPackageName());
+    	liveCardView = new RoutePointCard(
+    			tcxRoute.getCoursePoints().get(routeIndex)).getRemoteViews(getPackageName());
 		liveCard.setViews(liveCardView);
+		wl.acquire(SCREEN_TIMEOUT_MS);
 	}
 
 	private void setProximityAlertForCurrentDestination(float radiusMeters) {
 		Log.i(TAG, "setting proximity alert for current dest at " + radiusMeters + "m");
-		CoursePoint destination = route.get(currentDestinationRouteIndex);
+		CoursePoint destination = tcxRoute.getCoursePoints().get(currentDestinationRouteIndex);
 		proximityAlert = PendingIntent.getService(this, 0, new Intent(PROXIMITY_ALERT_ACTION), 0);
     	locationManager.addProximityAlert(
     			destination.getLatitude(),
@@ -281,7 +295,7 @@ public class StfuLiveCardService extends Service {
 	private void setMenuPendingIntent() {
 		liveCard.setAction(PendingIntent.getActivity(
 		        this, 0, 
-		        MainActivity.newIntent(this, route), // pass the route
+		        MainActivity.newIntent(this, tcxRoute != null ? tcxRoute.getCoursePoints() : null), // pass the route
 		        PendingIntent.FLAG_CANCEL_CURRENT /* clear the existing pending intent */));
 	}
 

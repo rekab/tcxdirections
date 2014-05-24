@@ -8,7 +8,7 @@ import android.location.Location;
 import android.util.Log;
 
 public class TcxRoute {
-	private static final int NEARBY_TRACK_POINT_METERS = 50;
+	private static final int NEARBY_TRACK_POINT_METERS = 100;
 	private static final String TAG = "TcxRoute";
 	private ArrayList<TrackPoint> trackPoints = null;
 	private ArrayList<CoursePoint> coursePoints = null;
@@ -26,6 +26,7 @@ public class TcxRoute {
 	public int getNextCoursePointIndex(Location curLocation, int prevCoursePointIndex) {
 		// Verify we're not at the end already.
 		if (prevCoursePointIndex >= (getCoursePoints().size() - 1)) {
+			Log.d(TAG, "we're at the end of the route");
 			return prevCoursePointIndex;
 		}
 
@@ -71,13 +72,17 @@ public class TcxRoute {
 		// Check if we can find a nearby track point with the same course point.
 		ArrayList<TrackPoint> nearbyTrackPoints = getNearbyTrackPoints(curLocation);
 		if (nearbyTrackPoints == null || nearbyTrackPoints.size() == 0) {
+			Log.w(TAG, "Off course: no nearby track points");
 			return false;
 		}
 		for (TrackPoint tp : nearbyTrackPoints) {
+			Log.d(TAG, "Checking if curCoursePoint=" + curCoursePointIndex + "agrees with tp=" + tp);
 			if (tp.getDestination().equals(getCoursePoints().get(curCoursePointIndex))) {
+				Log.d(TAG, "match");
 				return true;
 			}
 		}
+		Log.w(TAG, "off course!");
 		return false;
 	}
 

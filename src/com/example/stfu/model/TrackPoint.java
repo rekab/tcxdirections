@@ -33,5 +33,9 @@ public class TrackPoint extends Location {
 	public void setDistance(Double distance) {
 		this.distance = distance;
 	}
+	
+	public String toString() {
+		return super.toString() + " dest=" + this.destination;
+	}
 
 }
