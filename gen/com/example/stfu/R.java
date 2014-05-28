@@ -75,9 +75,10 @@ public final class R {
         public static final int water=0x7f020007;
     }
     public static final class id {
-        public static final int action_browse_files=0x7f090021;
+        public static final int action_browse_files=0x7f090022;
         public static final int action_browse_route=0x7f090020;
-        public static final int action_scan=0x7f090022;
+        public static final int action_scan=0x7f090023;
+        public static final int action_stop_nav=0x7f090021;
         public static final int app_picker_list_item_icon=0x7f09000a;
         public static final int app_picker_list_item_label=0x7f09000b;
         public static final int bookmark_title=0x7f09000c;
@@ -261,6 +262,7 @@ public final class R {
         public static final int result_wifi=0x7f0a0071;
         public static final int sbc_name=0x7f0a0072;
         public static final int start_scan=0x7f0a0076;
+        public static final int stop_nav=0x7f0a007f;
         public static final int wifi_changing_network=0x7f0a0073;
         public static final int wifi_ssid_label=0x7f0a0074;
         public static final int wifi_type_label=0x7f0a0075;

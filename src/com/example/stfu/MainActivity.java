@@ -105,6 +105,10 @@ public class MainActivity extends Activity {
         	// back to the livecard service to change its route index.
         	startActivityForResult(BrowseRouteActivity.newIntent(this, getRoute()), PICK_DESTINATION_ACTION);
         	return true;
+        } else if(id == R.id.action_stop_nav) {
+        	Log.i(TAG, "told to stop nav");
+        	startService(StfuLiveCardService.newStopNavIntent(this));
+        	return true;
         }
         
         shouldFinishOnMenuClose = true; // We're not expecting an activity result.

@@ -23,14 +23,14 @@ public class TcxRoute {
 	}
 
 	
-	public int getNextCoursePointIndex(Location curLocation, int prevCoursePointIndex) {
+	public int getNextCoursePointIndex(Location curLocation, int curCoursePointIndex) {
 		// Verify we're not at the end already.
-		if (prevCoursePointIndex >= (getCoursePoints().size() - 1)) {
+		if (curCoursePointIndex >= (getCoursePoints().size() - 1)) {
 			Log.d(TAG, "we're at the end of the route");
-			return prevCoursePointIndex;
+			return curCoursePointIndex;
 		}
 
-		int probableNextCoursePointIndex = prevCoursePointIndex + 1;
+		int probableNextCoursePointIndex = curCoursePointIndex + 1;
 		Log.d(TAG, "curLocation=" + curLocation);
 		Log.d(TAG, "probableNextCoursePointIndex=" + probableNextCoursePointIndex);
 
@@ -40,7 +40,7 @@ public class TcxRoute {
 			Log.d(TAG, "no nearby track points, we're off course");
 			//// If there aren't any we're off course, just assume we're going to the next.
 			//return probableNextCoursePointIndex;
-			return prevCoursePointIndex;
+			return curCoursePointIndex;
 		}
 
 		// It's possible the tracks could overlap. Try to find tracks leading to the next
@@ -57,7 +57,7 @@ public class TcxRoute {
 			}
 		}
 		Log.i(TAG, "giving up");
-		return prevCoursePointIndex;
+		return curCoursePointIndex;
 		/*
 		for (TrackPoint tp : nearbyTrackPoints) {
 			Log.i(TAG, "attempting to find track points we're headed towards");

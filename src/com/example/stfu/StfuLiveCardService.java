@@ -48,9 +48,10 @@ public class StfuLiveCardService extends Service {
 	public static final String DISPLAY_ROUTE_FILE_ACTION = "display_file";
 	private static final String ROUTE_INDEX = "route_index";
 	private static final String PICK_DESTINATION_CARD_ACTION = "pick_card";
+	private static final String PROXIMITY_ALERT_ACTION = "proximity_alert";
+	private static final String STOP_NAV_ACTION = "stop_nav";
 	private static final float APPROACHING_DEST_ALERT_RADIUS_METERS = 100;
 	private static final float ARRIVED_AT_DEST_ALERT_RADIUS_METERS = 40;
-	private static final String PROXIMITY_ALERT_ACTION = "proximity_alert";
 	private LocationManager locationManager;
 	private LocationListener locationListener;
 	private Location latestLocation;
@@ -59,11 +60,14 @@ public class StfuLiveCardService extends Service {
 	private int currentDestinationRouteIndex;
 	//private ArrayList<CoursePoint> route = null;
 	private PendingIntent proximityAlert = null;
-	protected static final boolean FAKE_LOCATION_UPDATES = false; // For testing
+	protected static final boolean FAKE_LOCATION_UPDATES = true; // For testing
+	// Test route: http://ridewithgps.com/routes/4783905
+	// Test track: http://ridewithgps.com/trips/2701861
+	private static final String TEST_FILE_LOCATION = Filesystem.getStorageDirectory() + "/cts-8-gpx-track.gpx";
 	// Test route: http://ridewithgps.com/routes/4051817
 	// Test track: http://ridewithgps.com/trips/2550337
-	private static final String TEST_FILE_LOCATION = Filesystem.getStorageDirectory() + "/2550337.gpx";
-	private static final long SCREEN_TIMEOUT_MS = 30 * 1000;
+	//private static final String TEST_FILE_LOCATION = Filesystem.getStorageDirectory() + "/2550337.gpx";
+	private static final long SCREEN_TIMEOUT_MS = 15 * 1000;
 	private PowerManager pm;
 	private PowerManager.WakeLock wl;
 	private AudioManager audio;
@@ -122,7 +126,7 @@ public class StfuLiveCardService extends Service {
 						return;
 					}
 					lastLocationUpdate = curTime;
-					
+
 					Log.i(TAG, "got new location: " + location);
 					if (tcxRoute == null) {
 						// TODO: to save power, should only request location updates when a route
@@ -135,12 +139,13 @@ public class StfuLiveCardService extends Service {
 						Log.i(TAG, "on course, index=" + currentDestinationRouteIndex + "=" + tcxRoute.getCoursePoints().get(currentDestinationRouteIndex));
 					} else {
 						Log.w(TAG, "off course, updating destination from index=" + currentDestinationRouteIndex);
-
-						
-						currentDestinationRouteIndex = tcxRoute.getNextCoursePointIndex(
+						int newDestination = tcxRoute.getNextCoursePointIndex(
 					    		location, currentDestinationRouteIndex);
-						Log.i(TAG, "updated index=" + currentDestinationRouteIndex);
-					    setDestination(currentDestinationRouteIndex);
+						if (newDestination != currentDestinationRouteIndex) {
+							currentDestinationRouteIndex = newDestination;
+							Log.i(TAG, "updated index=" + currentDestinationRouteIndex);
+							setDestination(currentDestinationRouteIndex);
+						}
 					}
 
 					// Because Glass doesn't have an emulator, and because proximity
@@ -218,7 +223,11 @@ public class StfuLiveCardService extends Service {
     		setDestination(routeIndex);
         } else if (intent.getAction().equals(PROXIMITY_ALERT_ACTION)) {
         	handleProximityAlert();
-        	
+        } else if (intent.getAction().equals(STOP_NAV_ACTION)) {
+        	Log.i(TAG, "Got intent to stop navigation");
+        	updateRunnable.setStop(true);
+    		removeProximityAlertForCurrentDestination();
+    		locationManager.removeUpdates(locationListener);
         } else {
         	Log.e(TAG, "Unknown action for intent: " + intent.getAction());
         }
@@ -274,6 +283,7 @@ public class StfuLiveCardService extends Service {
 	 * @param routeIndex
 	 */
 	private void setDestination(int routeIndex) {
+		Log.i(TAG, "Setting destination to index=" + routeIndex);
     	if (tcxRoute == null) {
     		Log.e(TAG, "wtf can't pick a destination without a route!");
     		return;
@@ -400,6 +410,17 @@ public class StfuLiveCardService extends Service {
 		Intent intent = new Intent(ctx, StfuLiveCardService.class);
 		intent.setAction(PICK_DESTINATION_CARD_ACTION);
 		intent.putExtra(ROUTE_INDEX, index);
+		return intent;
+	}
+
+	/**
+	 * Create an intent to stop navigation.
+	 * @param ctx
+	 * @return
+	 */
+	public static Intent newStopNavIntent(Context ctx) {
+		Intent intent = new Intent(ctx, StfuLiveCardService.class);
+		intent.setAction(STOP_NAV_ACTION);
 		return intent;
 	}
 }
