@@ -159,8 +159,6 @@ public class StfuLiveCardService extends Service {
 				}
 			};
         }
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		if (FAKE_LOCATION_UPDATES) {
 			/*locationManager.addTestProvider(TEST_PROVIDER_NAME, false, false, false, false,
 					true, true, true, Criteria.POWER_LOW, Criteria.ACCURACY_FINE);
@@ -175,12 +173,7 @@ public class StfuLiveCardService extends Service {
 				e.printStackTrace();
 			}
 		} else {
-			List<String> providers = locationManager.getProviders(
-			        criteria, true /* enabledOnly */);
-			for (String provider : providers) {
-				// TODO: how do we stop requesting updates?
-			    locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
-			}
+
 		}
     }
     @Override
@@ -197,6 +190,9 @@ public class StfuLiveCardService extends Service {
             liveCard.publish(PublishMode.REVEAL);
         } else if (intent.getAction().equals(DISPLAY_ROUTE_FILE_ACTION)) {
         	if (intent.hasExtra(FILE_PATH)) {
+            	liveCardView.setTextViewText(R.id.text, "Loading route...");
+        		liveCard.setViews(liveCardView);
+
         		File tcxFile = new File(intent.getStringExtra(FILE_PATH));
         		tcxRoute = TcxReader.getTcxRoute(tcxFile);
         		//route = GpxReader.getRoutePoints(gpxFile);
@@ -206,15 +202,28 @@ public class StfuLiveCardService extends Service {
         			// TODO: display an error
         		} else {
 	        		Log.i(TAG, "loaded route " + tcxRoute);
-	
+
+	        		if (FAKE_LOCATION_UPDATES) {
+	        			// Kick off the fake updates
+		        		handler.postDelayed(updateRunnable, DELAY_MILLIS);
+	        		} else {
+	        			Log.i(TAG, "Requesting location updates");
+		    			Criteria criteria = new Criteria();
+		    			criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		    			List<String> providers = locationManager.getProviders(
+		    			        criteria, true /* enabledOnly */);
+		    			for (String provider : providers) {
+		    				// TODO: how do we stop requesting updates?
+		    			    locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
+		    			}
+	        		}
 	        		// Update the menu pending intent to reflect that we've got a route.
 	        		setMenuPendingIntent();
 	
 	        		setDestination(intent.getIntExtra(ROUTE_INDEX, 0));
         		}
         		
-        		// Kick off the updates
-        		handler.postDelayed(updateRunnable, DELAY_MILLIS);
+
         	} else {
         		Log.e(TAG, "Got a DISPLAY_ROUTE_FILE_ACTION action with no file?");
         	}
