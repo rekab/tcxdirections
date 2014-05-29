@@ -1,2 +1,9 @@
 *.class
 bin/
+gen/
+tmp/
+TcxDirections-test/bin/
+
+# ignored Eclipse files and folder
+.project
+.classpath
