@@ -7,3 +7,6 @@ TcxDirections-test/bin/
 # ignored Eclipse files and folder
 .project
 .classpath
+
+# apple
+.DS_Store
