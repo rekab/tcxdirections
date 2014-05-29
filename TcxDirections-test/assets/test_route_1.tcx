@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">
+  <Folders>
+    <Courses>
+      <CourseFolder Name="Courses">
+        <CourseNameRef>
+          <Id>Test-route--1</Id>
+        </CourseNameRef>
+      </CourseFolder>
+    </Courses>
+  </Folders>
+  <Courses>
+    <Course>
+      <Name>Test-route--1</Name>
+      <Lap>
+        <TotalTimeSeconds>11</TotalTimeSeconds>
+        <DistanceMeters>751.125</DistanceMeters>
+        <BeginPosition>
+          <LatitudeDegrees>47.64685</LatitudeDegrees>
+          <LongitudeDegrees>-122.33757</LongitudeDegrees>
+        </BeginPosition>
+        <EndPosition>
+          <LatitudeDegrees>47.65198</LatitudeDegrees>
+          <LongitudeDegrees>-122.3351</LongitudeDegrees>
+        </EndPosition>
+        <Intensity>Active</Intensity>
+      </Lap>
+      <Track>
+        <!-- trackpoint 0 -->
+        <Trackpoint>
+          <Time>2014-05-21T03:37:47Z</Time>
+          <Position>
+            <LatitudeDegrees>47.64685</LatitudeDegrees>
+            <LongitudeDegrees>-122.33757</LongitudeDegrees>
+          </Position>
+          <AltitudeMeters>11.1</AltitudeMeters>
+          <DistanceMeters>0</DistanceMeters>
+        </Trackpoint>
+        <!-- trackpoint 1 -->
+        <Trackpoint>
+          <Time>2014-05-21T03:37:57Z</Time>
+          <Position>
+            <LatitudeDegrees>47.64692</LatitudeDegrees>
+            <LongitudeDegrees>-122.33757</LongitudeDegrees>
+          </Position>
+          <AltitudeMeters>11.7</AltitudeMeters>
+          <DistanceMeters>7.792</DistanceMeters>
+        </Trackpoint>
+        <!-- trackpoint 2 -->
+        <Trackpoint>
+          <Time>2014-05-21T03:38:07Z</Time>
+          <Position>
+            <LatitudeDegrees>47.64703</LatitudeDegrees>
+            <LongitudeDegrees>-122.33756</LongitudeDegrees>
+          </Position>
+          <AltitudeMeters>12.6</AltitudeMeters>
+          <DistanceMeters>20.06</DistanceMeters>
+        </Trackpoint>
+        <!-- trackpoint 3 -->
+        <Trackpoint>
+          <Time>2014-05-21T03:38:17Z</Time>
+          <Position>
+            <LatitudeDegrees>47.64805</LatitudeDegrees>
+            <LongitudeDegrees>-122.33753</LongitudeDegrees>
+          </Position>
+          <AltitudeMeters>23.5</AltitudeMeters>
+          <DistanceMeters>133.628</DistanceMeters>
+        </Trackpoint>
+        <!-- trackpoint 4 (coursepoint 1) -->
+        <Trackpoint>
+          <Time>2014-05-21T03:38:27Z</Time>
+          <Position>
+            <LatitudeDegrees>47.64921</LatitudeDegrees>
+            <LongitudeDegrees>-122.33752</LongitudeDegrees>
+          </Position>
+          <AltitudeMeters>29.6</AltitudeMeters>
+          <DistanceMeters>262.76</DistanceMeters>
+        </Trackpoint>
+        <!-- trackpoint 5 -->
+        <Trackpoint>
+          <Time>2014-05-21T03:38:47Z</Time>
+          <Position>
+            <LatitudeDegrees>47.6492</LatitudeDegrees>
+            <LongitudeDegrees>-122.33635</LongitudeDegrees>
+          </Position>
+          <AltitudeMeters>32.7</AltitudeMeters>
+          <DistanceMeters>350.508</DistanceMeters>
+        </Trackpoint>
+        <!-- trackpoint 6 -->
+        <Trackpoint>
+          <Time>2014-05-21T03:38:57Z</Time>
+          <Position>
+            <LatitudeDegrees>47.64921</LatitudeDegrees>
+            <LongitudeDegrees>-122.33512</LongitudeDegrees>
+          </Position>
+          <AltitudeMeters>30.8</AltitudeMeters>
+          <DistanceMeters>442.754</DistanceMeters>
+        </Trackpoint>
+        <!-- trackpoint 7 -->
+        <Trackpoint>
+          <Time>2014-05-21T03:39:17Z</Time>
+          <Position>
+            <LatitudeDegrees>47.6505</LatitudeDegrees>
+            <LongitudeDegrees>-122.33513</LongitudeDegrees>
+          </Position>
+          <AltitudeMeters>36.7</AltitudeMeters>
+          <DistanceMeters>586.358</DistanceMeters>
+        </Trackpoint>
+        <!-- trackpoint 8 -->
+        <Trackpoint>
+          <Time>2014-05-21T03:39:27Z</Time>
+          <Position>
+            <LatitudeDegrees>47.65198</LatitudeDegrees>
+            <LongitudeDegrees>-122.3351</LongitudeDegrees>
+          </Position>
+          <AltitudeMeters>44.9</AltitudeMeters>
+          <DistanceMeters>751.125</DistanceMeters>
+        </Trackpoint>
+      </Track>
+      <!-- coursepoint 0 -->
+      <CoursePoint>
+        <Name>Start of r</Name>
+        <Time>2014-05-21T03:37:47Z</Time>
+        <Position>
+          <LatitudeDegrees>47.64685</LatitudeDegrees>
+          <LongitudeDegrees>-122.33757</LongitudeDegrees>
+        </Position>
+        <PointType>Generic</PointType>
+        <Notes>Start of route</Notes>
+      </CoursePoint>
+      <!-- coursepoint 1 -->
+      <CoursePoint>
+        <Name>N 35th St</Name>
+        <Time>2014-05-21T03:38:27Z</Time>
+        <Position>
+          <LatitudeDegrees>47.64921</LatitudeDegrees>
+          <LongitudeDegrees>-122.33752</LongitudeDegrees>
+        </Position>
+        <PointType>Right</PointType>
+        <Notes>Turn right onto N 35th St</Notes>
+      </CoursePoint>
+      <!-- coursepoint 2 -->
+      <CoursePoint>
+        <Name>Burke Ave </Name>
+        <Time>2014-05-21T03:38:57Z</Time>
+        <Position>
+          <LatitudeDegrees>47.64921</LatitudeDegrees>
+          <LongitudeDegrees>-122.33512</LongitudeDegrees>
+        </Position>
+        <PointType>Left</PointType>
+        <Notes>Turn left onto Burke Ave N</Notes>
+      </CoursePoint>
+      <!-- coursepoint 3 -->
+      <CoursePoint>
+        <Name>End of rou</Name>
+        <Time>2014-05-21T03:39:27Z</Time>
+        <Position>
+          <LatitudeDegrees>47.65198</LatitudeDegrees>
+          <LongitudeDegrees>-122.3351</LongitudeDegrees>
+        </Position>
+        <PointType>Generic</PointType>
+        <Notes>End of route</Notes>
+      </CoursePoint>
+    </Course>
+  </Courses>
+</TrainingCenterDatabase>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gpxdata="http://www.cluetrust.com/XML/GPXDATA/1/0" xmlns="http://www.topografix.com/GPX/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd http://www.cluetrust.com/XML/GPXDATA/1/0 http://www.cluetrust.com/Schemas/gpxdata10.xsd" version="1.0" creator="http://ridewithgps.com/">
+  <author>RideWithGPS LLC</author>
+  <url>http://ridewithgps.com/routes/4745506</url>
+  <time>2014-05-17T07:32:44Z</time>
+  <trk>
+    <name>Test of route #1</name>
+    <trkseg>
+      <!-- trackpoint 0 -->
+      <trkpt lat="47.64685" lon="-122.33757">
+        <ele>11.1</ele>
+      </trkpt>
+      <!-- trackpoint 1 -->
+      <trkpt lat="47.64692" lon="-122.33757">
+        <ele>11.7</ele>
+      </trkpt>
+      <!-- trackpoint 2 -->
+      <trkpt lat="47.64703" lon="-122.33756">
+        <ele>12.6</ele>
+      </trkpt>
+      <!-- trackpoint 3 -->
+      <trkpt lat="47.64805" lon="-122.33753">
+        <ele>23.5</ele>
+      </trkpt>
+
+      <!-- right turn: heading east -->
+      <!-- trackpoint 4 -->
+      <trkpt lat="47.64921" lon="-122.33752">
+        <ele>29.6</ele>
+      </trkpt>
+      <!-- trackpoint 5 -->
+      <trkpt lat="47.64921" lon="-122.33752">
+        <ele>29.6</ele>
+      </trkpt>
+
+      <!-- left turn: heading north (off track) -->
+      <!-- trackpoint 6 -->
+      <trkpt lat="47.6492" lon="-122.33635">
+        <ele>32.7</ele>
+      </trkpt>
+      <!-- trackpoint 7 -->
+      <trkpt lat="47.6492" lon="-122.33635">
+        <ele>32.7</ele>
+      </trkpt>
+
+      <!-- right turn: heading east (off track) -->
+      <!-- trackpoint 8 -->
+      <trkpt lat="47.6505" lon="-122.33634">
+        <ele>38.8</ele>
+      </trkpt>
+      <!-- trackpoint 9 -->
+      <trkpt lat="47.6505" lon="-122.33634">
+        <ele>38.8</ele>
+      </trkpt>
+
+      <!-- left turn: heading north (back on track) -->
+      <!-- trackpoint 10 -->
+      <trkpt lat="47.6505" lon="-122.33513">
+        <ele>36.7</ele>
+      </trkpt>
+      <!-- trackpoint 11 -->
+      <trkpt lat="47.65158" lon="-122.33511">
+        <ele>42.7</ele>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

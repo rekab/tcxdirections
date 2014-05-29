@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.stfu.MainActivity" >
+    tools:context="com.github.rekab.tcxdirections.MainActivity" >
     <group
         android:id="@+id/route_actions_menu_group">
         <item
